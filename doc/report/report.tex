@@ -9,7 +9,7 @@
 
 \usepackage{url}
 \usepackage{graphicx}
-\usepackage{hyperref}
+\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
 
 \usepackage{tabularray}
 
@@ -235,7 +235,7 @@ The mainly requested actions are:
 
 In production I chose to use a mixed strategy to build the E/R diagram.
 
-A first version of the E/R diagram explained in \ref{fig:ER_v1}.
+A first version of the E/R diagram explained in figure \ref{fig:ER_v1}.
 This diagram represents the skeleton of the E/R diagram.
 Here I made the "mistake" of mixing time concepts with static ones.
 In fact Requests and Requirements are single entity sets but their historic of a Version (Release) is not well managed.
@@ -247,7 +247,7 @@ In fact Requests and Requirements are single entity sets but their historic of a
 \label{fig:ER_v1}
 \end{figure}
 
-A second version of the E/R diagram explained in \ref{fig:ER_v2}.
+A second version of the E/R diagram explained in figure \ref{fig:ER_v2}.
 Here a clean schema shows how Requests and Requirements should be traced in their historic versions.
 Furthermore is important to watch that an historic version is always created when a new Release is published, independently from
 Requests or Requirements changes.
@@ -260,7 +260,7 @@ This could lead to an inefficient use of storage...
 \label{fig:ER_v2}
 \end{figure}
 
-A third version of the E/R diagram explained in \ref{fig:ER_v3}.
+A third version of the E/R diagram explained in figure \ref{fig:ER_v3}.
 Here every attribute is present and shows which data are stored for each entity/relationship.
 
 \begin{figure}[H]
@@ -749,7 +749,7 @@ The distinction between Guest and Editor users is given to a flag that indicates
 In this case it was chosen to translate them by putting an external identifier in the 1-1 relationship to refer to the other
 entity.
 
-The E/R diagram restructured is explained in \ref{fig:ER_logic}.
+The E/R diagram restructured is explained in figure \ref{fig:ER_logic}.
 
 \begin{figure}[H]
 \centering
