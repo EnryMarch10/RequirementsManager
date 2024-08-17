@@ -1,0 +1,796 @@
+\documentclass[12pt, a4paper]{report}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{times}
+
+\usepackage{float}
+
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\usepackage{tabularray}
+
+\usepackage[table, svgnames]{xcolor}
+\usepackage[backend=biber, style=alphabetic, sorting=ynt]{biblatex}
+
+% Normal table
+\colorlet{dark_title_rows}{gray!90}
+\colorlet{light_odd_rows}{gray!15}
+
+% Right table
+\colorlet{dark_title_rows_right}{teal!90}
+\colorlet{light_odd_rows_right}{teal!15}
+
+% Wrong table
+\colorlet{dark_title_rows_wrong}{orange!90}
+\colorlet{light_odd_rows_wrong}{orange!15}
+
+% \addbibresource{report.bib}
+
+\graphicspath{{img/}} % global configuration
+
+\title{
+    RequirementsManager
+    % \begin{figure}[ht]
+    % \centering
+    % \includegraphics[width=\textwidth]{logo}
+    % \end{figure}
+}
+\author{
+    Enrico Marchionni\\
+    \texttt{enrico.marchionni@studio.unibo.it}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+ReM\footnote{\emph{ReM}, Requirements Manager.} is an administrative software that makes you minimize time and maximize result in
+the \emph{Software Engineering} process of collecting and creating requirements.
+
+\end{abstract}
+
+\tableofcontents
+
+\addcontentsline{toc}{chapter}{Analysis}
+\chapter*{Analysis}
+
+It's requested to realize a database that allows a team to optimize Software's Analysis by managing Requirements creation.
+Each one of them descends from a Request that could be created by a team member or by the project customers.
+
+\addcontentsline{toc}{section}{Preliminary}
+\section*{Preliminary}
+\label{sec:preliminary}
+
+\addcontentsline{toc}{subsection}{Interview}
+\subsection*{Interview}
+\label{subsec:interview}
+
+The aim is to manage requirements during all phases of software production and revision storing away all final and in production
+data relative to releases already published or yet to publish. Everything has to start from a \emph{Request}.
+Once it has been created the relative \emph{Requirement/s} can be developed.
+
+The system admin has to create users and the relative database linked to a software.
+Requests can be created by a team member or a customer. Requirements can be developed by team members only. Requests and therefore
+Requirements can obviously be added or even edited in later releases. It's not important to keep track of every update or change,
+the important is to keep track of final data just before a release. The timeline can be added by a team member only and domain
+conditions has to be respected.
+
+Requirements have to be structured with a title, a type (functional, non functional), a version, a description, a body, one or
+more files, progress data, a creation time and a last modified time. Moreover for a requirement it has to be known
+the user that did the first and last modifies and an history of updates with times and users that did them. Furthermore is
+important to consider that requirements could be arranged in a tree structure in the most complex cases.
+
+Requests structure consists of a title, a type, a version, a description, a body, one or more files, a creation time and a last
+modified time. Besides for a request it has to be known the user that did the first and last modifies and an history of
+updates with times and users that did them.
+
+A requirement has to be associated with one and only one request, a request can be associated with multiple requirements.
+
+A request has to be approved by a team member before developing it into a requirement. After the approval a customer has to
+accept the request approval, only then the relative requirement can be developed. When the approval is done the request mustn't
+be able to be modified.
+
+Users has to be saved with personal info such as username, name, surname, email, phone and optionally the company name.
+
+The releases should also save a short description and a name that has to be an identifier between the timelines. It's important to
+permit the creation of a new timeline only if every requirement was completed, or this mustn't be permitted. In addition every
+request has to be approved, formalized into requirement and completed before the version creation.
+
+Every data that was affected by the version cannot be overridden so their last modified time should be previous to the version
+creation time.
+
+% There has to be also the possibility to comment (and reply) requests and requirements so as to work in a more interactive and
+% efficient way.
+
+\addcontentsline{toc}{subsection}{Glossary}
+\subsection*{Glossary}
+
+A glossary of terms with description, synonyms and links used in \nameref{subsec:interview} is here explained in
+\autoref{tab:glossary_terms}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={X[l]X[l]X[l]X[l]},
+        width=\textwidth,
+        row{odd}={gray!15},
+        row{even}={white},
+        row{1}={bg=gray!90,fg=white},
+        colsep=4pt
+      }
+        \textbf{Term} & \textbf{Description} & \textbf{Synonyms} & \textbf{Links} \\
+        Request & Customer request of what the system should do & & Requirement, release \\ %, comment \\
+        \hline
+        Requirement & Formal description of what the system should do & & Request, release \\ %, comment \\
+        \hline
+        & Requirements + Requests & Data \\
+        \hline
+        Editor & User that can add Requirements & Team member & \\
+        \hline
+        Guest & User that can only add Requests & Customer & \\
+        \hline
+        User & Editor + Guest & User & Editing, versioning \\ %, commenting \\
+        \hline
+        % Comment & A short text that comments something & Reply & Request, requirement \\
+        Release & A timeline that confirms the fact that a software version was released  & Version, timeline & Data \\
+        \hline
+    \end{tblr}
+    \caption{\label{tab:glossary_terms} Glossary of terms}
+\end{table}
+
+\addcontentsline{toc}{section}{Requirements}
+\section*{Requirements}
+
+This section aims to restructure requirements according to the \nameref{sec:preliminary} phase.
+
+\addcontentsline{toc}{subsection}{Functional}
+\subsection*{Functional}
+
+\begin{itemize}
+    \item General
+    \begin{itemize}
+        \item It is demanded to realize a database that manages requirements;
+        \item Information that have to be stored are \textbf{Requests}, \textbf{Requirements}, \textbf{Users} and \textbf{Releases}; %and \textbf{Comments};
+    \end{itemize}
+    \item Users
+    \begin{itemize}
+        \item \textbf{Users} are structured with username, name, surname, email, phone and optionally the company name;
+        \item \textbf{Users} are divided into two groups:
+            \begin{itemize}
+                \item \textbf{Editors} - they approve \emph{Requests}, develop relative \emph{Requirements} and decides \emph{Releases};
+                    in some cases they could also create \emph{Requests};
+                \item \textbf{Guests} - they create \emph{Requests} that once approved cannot be edited but will be developed into
+                    \emph{Requirements};
+            \end{itemize}
+    \end{itemize}
+    \item Requests
+    \begin{itemize}
+        \item \textbf{Requests} are structured with a title, a type, a version (positive integer), a description, a body, one or more
+            files, a creation time and a last modified time;
+    \end{itemize}
+    \item Requirements
+    \begin{itemize}
+        \item \textbf{Requirements} are structured with a title, a type (functional, non functional), a version (positive integer),
+            a description, a body, one or more files, progress data (a percentage), a creation time and a last modified time;
+        \item \textbf{Requirements} could be arranged in a tree structure;
+    \end{itemize}
+    % \item Comments
+    % \begin{itemize}
+    %     \item \textbf{Comments} are structured with a description, the last modified time and the creation time;
+    %     \item \textbf{Comments} are relative to \emph{Requests} and \emph{Requirements}; \emph{Editors} can comment both while
+    %         \emph{Guests} can work only with \emph{Requests};
+    % \end{itemize}
+    \item Releases
+    \begin{itemize}
+        \item \textbf{Releases} are structured with a unique name (software version name), a short description and the creation time;
+        \item \textbf{Releases} are timelines that can be created only if all \emph{Requests} had been approved and converted into
+            already fully developed \emph{Requirements};
+    \end{itemize}
+    \item Conditions
+    \begin{itemize}
+        \item all \textbf{Requests} and \textbf{Requirements} relative to a \textbf{Release} have to be historicized;
+        \item \textbf{Requests} and \textbf{Requirements} could be modified or even invalidated in later \textbf{Releases};
+        \item a \textbf{Requirement} has to be associated with one and only one \textbf{Request}, a \textbf{Request} can be associated
+            with multiple \textbf{Requirements}.
+    \end{itemize}
+\end{itemize}
+
+\addcontentsline{toc}{subsection}{Non-Functional}
+\subsection*{Non-Functional}
+
+\begin{itemize}
+    \item Data access has to be really fast;
+    \item CRUD\footnote{\emph{CRUD}, Create, read, update, delete.} operations should be non blocking in final
+        GUI\footnote{\emph{GUI}, Graphical user interface.};
+\end{itemize}
+
+\addcontentsline{toc}{section}{Actions}
+\section*{Actions}
+
+The mainly requested actions are:
+\begin{enumerate}
+    \item Subscribe a new user;
+    \item View a request;
+    \item Create a request;
+    \item Update a request;
+    \item Approve a request;
+    \item View a requirement;
+    \item Create a requirement;
+    \item Update a requirement;
+    \item Disable a requirement;
+    \item Create a release;
+    \item Show requirements and requests relative to a specific release;
+    \item View single requirement history (every change for each release);
+    \item Obtain an average of the progress time for completing a branch of the requirements tree;
+\end{enumerate}
+
+\addcontentsline{toc}{section}{Conceptual design}
+\section*{Conceptual design}
+
+In production I chose to use a mixed strategy to build the E/R diagram.
+
+A first version of the E/R diagram explained in \ref{fig:ER_v1}.
+This diagram represents the skeleton of the E/R diagram.
+Here I made the "mistake" of mixing time concepts with static ones.
+In fact Requests and Requirements are single entity sets but their historic of a Version (Release) is not well managed.
+
+\begin{figure}[H]
+\centering
+\caption{Version 1}
+\includegraphics[width=\textwidth]{E-R conceptual v1}
+\label{fig:ER_v1}
+\end{figure}
+
+A second version of the E/R diagram explained in \ref{fig:ER_v2}.
+Here a clean schema shows how Requests and Requirements should be traced in their historic versions.
+Furthermore is important to watch that an historic version is always created when a new Release is published, independently from
+Requests or Requirements changes.
+This could lead to an inefficient use of storage...
+
+\begin{figure}[H]
+\centering
+\caption{Version 2}
+\includegraphics[width=\textwidth]{E-R conceptual v2}
+\label{fig:ER_v2}
+\end{figure}
+
+A third version of the E/R diagram explained in \ref{fig:ER_v3}.
+Here every attribute is present and shows which data are stored for each entity/relationship.
+
+\begin{figure}[H]
+\centering
+\caption{Version 3}
+\includegraphics[width=\textwidth]{E-R conceptual v3}
+\label{fig:ER_v3}
+\end{figure}
+
+\addcontentsline{toc}{section}{Logical design}
+\section*{Logical design}
+
+\addcontentsline{toc}{subsection}{Table of volumes}
+\subsection*{Table of volumes}
+
+Data and expected volumes are described in \autoref{tab:volumes_data}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={X[l]cc},
+        width=\textwidth,
+        row{odd}={light_odd_rows},
+        row{even}={white},
+        row{1}={bg=dark_title_rows,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Volume} \\
+        USER & E & 100 \\
+        \hline
+        GUEST & E & 90 \\
+        \hline
+        EDITOR & E & 10 \\
+        \hline
+        REQUEST & E & 50 \\
+        \hline
+        HISTORIC\_REQUEST & E & 40 \\
+        \hline
+        REQUIREMENT & E & 75 \\
+        \hline
+        HISTORIC\_REQUIREMENT & E & 50 \\
+        \hline
+        RELEASE & E & 5 \\
+        \hline
+        DEVELOPMENT & R & 70 \\
+        \hline
+        HISTORIC\_DEVELOPMENT & R & 50 \\
+        \hline
+        KINSHIP & R & 5 \\
+        \hline
+        HISTORIC\_KINSHIP & R & 5 \\
+        \hline
+        CREATION\_RELEASE & R & 5 \\
+        \hline
+        RELEASE\_REQUESTS & R & 40 \\
+        \hline
+        RELEASE\_REQUIREMENTS & R & 50 \\
+        \hline
+        CREATION\_REQUEST & R & 50 \\
+        \hline
+        EDITING\_REQUEST & R & 50 \\
+        \hline
+        HISTORIC\_EDITING\_REQUEST & R & 40 \\
+        \hline
+        APPROVAL\_REQUEST & R & 45 \\
+        \hline
+        CREATION\_REQUIREMENT & R & 70 \\
+        \hline
+        EDITING\_REQUIREMENT & R & 70 \\
+        \hline
+        HISTORIC\_EDITING\_REQUIREMENT & R & 50 \\
+        \hline
+        ORIGINAL\_REQUEST & R & 40 \\
+        \hline
+        ORIGINAL\_REQUIREMENT & R & 50 \\
+        \hline
+    \end{tblr}
+    \caption{\label{tab:volumes_data} Volumes of data}
+\end{table}
+
+\addcontentsline{toc}{subsection}{Operations and frequency}
+\subsection*{Operations and frequency}
+
+Operations and frequency are described in \autoref{tab:op_fr}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={rX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows},
+        row{even}={white},
+        row{1}={bg=dark_title_rows,fg=white},
+        colsep=4pt
+      }
+        \textbf{Code} & \textbf{Operation} & \textbf{Frequency} \\
+        1 & \hyperref[subsubsec:op1]{Subscribe a new user} & 10 every month \\
+        \hline
+        2 & \hyperref[subsubsec:op2]{View a request} & 200 every day \\
+        \hline
+        3 & \hyperref[subsubsec:op3]{Create a request} & 2 every day \\
+        \hline
+        4 & \hyperref[subsubsec:op4]{Update a request} & 5 every day \\
+        \hline
+        5 & \hyperref[subsubsec:op5]{Approve a request} & 1 every day \\
+        \hline
+        6 & \hyperref[subsubsec:op6]{View a requirement} & 200 every day \\
+        \hline
+        7 & \hyperref[subsubsec:op7]{Create a requirement} & 2 every day \\
+        \hline
+        8 & \hyperref[subsubsec:op8]{Update a requirement} & 50 every day \\
+        \hline
+        9 & \hyperref[subsubsec:op9]{Disable a requirement} & 1 every month \\
+        \hline
+        10 & \hyperref[subsubsec:op10]{View a release} & 2 every day \\
+        \hline
+        11 & \hyperref[subsubsec:op11]{Create a release} & 2 every year \\
+        \hline
+        12 & \hyperref[subsubsec:op12]{Show requirements and requests relative to a specific release} & 50 every day \\
+        \hline
+        13 & \hyperref[subsubsec:op13]{View single requirement history (every change for each release)} & 10 every day \\
+        \hline
+        14 & \hyperref[subsubsec:op14]{Obtain an average of the progress time for completing a branch of the requirements tree} & 20 every day \\
+        \hline
+    \end{tblr}
+    \caption{\label{tab:op_fr} Operations and frequency}
+\end{table}
+
+\addcontentsline{toc}{subsection}{Navigation and access}
+\subsection*{Navigation and access}
+
+\subsubsection*{1. Subscribe a new user}
+\label{subsubsec:op1}
+
+User subscription described in \autoref{tab:usr_sub}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        User & E & 1 & W \\
+        & & Total: 1W $\rightarrow$ 10 every month & \\
+    \end{tblr}
+    \caption{\label{tab:usr_sub} Subscribe a new user}
+\end{table}
+
+\subsubsection*{2. View a request}
+\label{subsubsec:op2}
+
+Request visualization described in \autoref{tab:vw_request}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Request & E & 1 & R \\
+        & & Total: 1R $\rightarrow$ 200 every day & \\
+    \end{tblr}
+    \caption{\label{tab:vw_request} View a request}
+\end{table}
+
+\subsubsection*{3. Create a request}
+\label{subsubsec:op3}
+
+Request creation described in \autoref{tab:cr_request}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Request & E & 1 & W \\
+        & & Total: 1W $\rightarrow$ 2 every day & \\
+    \end{tblr}
+    \caption{\label{tab:cr_request} Create a request}
+\end{table}
+
+\subsubsection*{4. Update a request}
+\label{subsubsec:op4}
+
+Request updating described in \autoref{tab:upd_request}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{4}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Request & E & 1 & R \\
+        Request & E & 1 & W \\
+        & & Total: 1R + 1W $\rightarrow$ 10 every day & \\
+    \end{tblr}
+    \caption{\label{tab:upd_request} Update a request}
+\end{table}
+
+\subsubsection*{5. Approve a request}
+\label{subsubsec:op5}
+
+Request approval described in \autoref{tab:appr_request}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{4}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Request & E & 1 & R \\
+        Request & E & 1 & W \\
+        & & Total: 1R + 1W $\rightarrow$ 2 every day & \\
+    \end{tblr}
+    \caption{\label{tab:appr_request} Approve a request}
+\end{table}
+
+\subsubsection*{6. View a requirement}
+\label{subsubsec:op6}
+
+Requirement visualization described in \autoref{tab:vw_requirement}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Requirement & E & 1 & R \\
+        & & Total: 1R $\rightarrow$ 200 every day & \\
+    \end{tblr}
+    \caption{\label{tab:vw_requirement} View a requirement}
+\end{table}
+
+\subsubsection*{7. Create a requirement}
+\label{subsubsec:op7}
+
+Requirement creation described in \autoref{tab:cr_requirement}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Requirement & E & 1 & W \\
+        & & Total: 1W $\rightarrow$ 2 every day & \\
+    \end{tblr}
+    \caption{\label{tab:cr_requirement} Create a requirement}
+\end{table}
+
+\subsubsection*{8. Update a requirement}
+\label{subsubsec:op8}
+
+Requirement updating described in \autoref{tab:upd_requirement}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{4}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Requirement & E & 1 & R \\
+        Requirement & E & 1 & W \\
+        & & Total: 1R + 1W $\rightarrow$ 100 every day & \\
+    \end{tblr}
+    \caption{\label{tab:upd_requirement} Update a requirement}
+\end{table}
+
+\subsubsection*{9. Disable a requirement}
+\label{subsubsec:op9}
+
+Requirement disabling described in \autoref{tab:dsb_requirement}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{4}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Requirement & E & 1 & R \\
+        Requirement & E & 1 & W \\
+        & & Total: 1R + 1W $\rightarrow$ 2 every month & \\
+    \end{tblr}
+    \caption{\label{tab:dsb_requirement} Disable a requirement}
+\end{table}
+
+\subsubsection*{10. View a release}
+\label{subsubsec:op10}
+
+Release visualization described in \autoref{tab:vw_release}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Release & E & 1 & R \\
+        & & Total: 1R $\rightarrow$ 2 every day & \\
+    \end{tblr}
+    \caption{\label{tab:vw_release} View a release}
+\end{table}
+
+\subsubsection*{11. Create a release}
+\label{subsubsec:op11}
+
+Release creation described in \autoref{tab:cr_release}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{3}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Release & E & 1 & W \\
+        & & Total: 1W $\rightarrow$ 2 every year & \\
+    \end{tblr}
+    \caption{\label{tab:cr_release} Create a release}
+\end{table}
+
+\subsubsection*{12. Show requirements and requests relative to a specific release}
+\label{subsubsec:op12}
+
+Requests and requirements visualization described in \autoref{tab:vw_reqs}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{7}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Release & E & 1 & R \\
+        Release\_requests & E & 8 (40 / 5) & R \\
+        Requests & E & 8 & R \\
+        Release\_requirements & E & 10 (50 / 5) & R \\
+        Requirements & E & 10 & R \\
+        & & Total: 37R $\rightarrow$ 1850 every day & \\
+    \end{tblr}
+    \caption{\label{tab:vw_reqs} Show requirements and requests relative to a specific release}
+\end{table}
+
+\subsubsection*{13. View single requirement history}
+\label{subsubsec:op13}
+
+Requests and requirements visualization described in \autoref{tab:requirement_history}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{5}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Requirement & E & 1 & R \\
+        Original\_requirement & E & 0.7 (50 / 75) & R \\
+        Historic\_requirement & E & 0.7 & R \\
+        & & Total: 2.4R $\rightarrow$ 24 every day & \\
+    \end{tblr}
+    \caption{\label{tab:requirement_history} View single requirement history}
+\end{table}
+
+\subsubsection*{14. Obtain an average of the progress time for completing a branch of the requirements tree}
+\label{subsubsec:op14}
+
+Requests and requirements visualization described in \autoref{tab:requirement_progress}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_right},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_right,fg=white},
+        row{5}={bg=dark_title_rows_right,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Requirement & E & 1 & R \\
+        Kinship & E & 0.07 (5 / 75) & R \\
+        Historic\_requirement & E & 0.07 & R \\
+        & & Total: 1.14R $\rightarrow$ 22.8 every day & \\
+    \end{tblr}
+    \caption{\label{tab:requirement_progress} Obtain an average of the progress time for completing a branch of the requirements tree}
+\end{table}
+
+\addcontentsline{toc}{subsection}{Redundancy analysis}
+\subsection*{Redundancy analysis}
+
+\subsubsection*{10. View a release}
+
+Release visualization without redundancy described in \autoref{tab:vw_request_no_redu}.
+
+\begin{table}[H]
+    \begin{tblr}{
+        colspec={lcX[l]c},
+        width=\textwidth,
+        row{odd}={light_odd_rows_wrong},
+        row{even}={white},
+        row{1}={bg=dark_title_rows_wrong,fg=white},
+        row{5}={bg=dark_title_rows_wrong,fg=white},
+        colsep=4pt
+      }
+        \textbf{Concept} & \textbf{Construct} & \textbf{Access} & \textbf{Type} \\
+        Release & E & 1 & R \\
+        Release\_requests & E & 8 (40 / 5) & R \\
+        Release\_requirements & E & 10 (50 / 5) & R \\
+        & & Total: 19R $\rightarrow$ 38 every day & \\
+    \end{tblr}
+    \caption{\label{tab:vw_request_no_redu} View a request without redundancy}
+\end{table}
+
+\addcontentsline{toc}{subsection}{Restructured diagram}
+\subsection*{Restructured diagram}
+
+\subsubsection*{Hierarchy elimination}
+
+It was chosen the collapse to the top for the necessity to have a unique identifier for the users (this helps in references).
+The distinction between Guest and Editor users is given to a flag that indicates if a user is also an Editor.
+
+\subsubsection*{Associations many-to-many}
+
+In this case it was chosen to translate them by putting an external identifier in the 1-1 relationship to refer to the other
+entity.
+
+The E/R diagram restructured is explained in \ref{fig:ER_logic}.
+
+\begin{figure}[H]
+\centering
+\caption{Logic}
+\includegraphics[width=\textwidth]{E-R logic}
+\label{fig:ER_logic}
+\end{figure}
+
+\subsubsection*{Entity and relationships translation in relations}
+
+\textbf{USERS}(\underline{UserId}, username, name, surname, email, phone, company*, isEditor)\newline
+\newline
+NOTES:\newline
+Unique(username)\newline
+Unique(email)\newline
+\newline
+\textbf{RELEASES}(\underline{ReleaseName}, description, timeCreation, nRequests, nRequirements,
+UserIdCreation: \textit{USERS})\newline
+\newline
+\textbf{REQUESTS}(\underline{RequestId}, title, description, body*, type, isActive, UserIdCreation: \textit{USERS}, timeCreation,
+UserIdEditing: \textit{USERS}, timeEditing, UserIdApproval*: \textit{USERS}, timeApproval*)\newline
+\newline
+NOTES:\newline
+`UserIdApproval' and `timeApproval' should be both present or both absent at the same time.\newline
+\newline
+\textbf{REQUIREMENTS}(\underline{RequirementId}, title, description, body*, type, isActive, UserIdCreation: \textit{USERS},
+timeCreation, UserIdEditing: \textit{USERS}, timeEditing, timeDevelopment, progressPercentage, estimatedTime, takenTime,
+RequestId: \textit{REQUESTS}, ParentRequirementId: \textit{REQUIREMENTS})\newline
+\newline
+\textbf{HISTORIC\_REQUESTS}(\underline{RequestId}: \textit{REQUESTS}, \underline{RequestVersion}, title, description, body*, type,
+isActive, UserIdEditing: \textit{USERS}, timeEditing, timeApproval, ReleaseName: \textit{RELEASES})\newline
+\newline
+\textbf{HISTORIC\_REQUIREMENTS}(\underline{RequirementId}: \textit{REQUIREMENTS}, \underline{RequirementVersion}, title,
+description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing,  timeDevelopment, estimatedTime, effectiveTime,
+(RequestId, RequestVersion): \textit{HISTORIC\_REQUESTS},
+(ParentRequirementId, ParentRequirementVersion)*: \textit{HISTORIC\_REQUIREMENTS}, ReleaseName: \textit{RELEASES})
+
+% \subsubsection*{Translation in SQL query}
+
+% \appendix
+
+% \printbibliography
+
+\end{document}
