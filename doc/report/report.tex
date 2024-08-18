@@ -13,6 +13,7 @@
 
 \usepackage{tabularray}
 
+\usepackage{listings}
 \usepackage[table, svgnames]{xcolor}
 \usepackage[backend=biber, style=alphabetic, sorting=ynt]{biblatex}
 
@@ -27,6 +28,52 @@
 % Wrong table
 \colorlet{dark_title_rows_wrong}{orange!90}
 \colorlet{light_odd_rows_wrong}{orange!15}
+
+\definecolor{mysql_comment_green}{rgb}{0.0, 0.5, 0.0}
+\definecolor{mysql_keyword_blue}{RGB}{70, 110, 182}
+\definecolor{mysql_identifier_chestnut}{RGB}{149, 69, 53}
+\definecolor{mysql_function_amber}{RGB}{255, 191, 0}
+
+\lstdefinelanguage{MySQL}{
+    morekeywords={
+        SELECT, INSERT, UPDATE, DELETE, FROM, WHERE, AND, OR, NOT, CREATE, ALTER, DROP, TABLE, INDEX, VIEW,
+        INTO, VALUES, JOIN, INNER, LEFT, RIGHT, ON, GROUP, BY, ORDER, HAVING, AS, DISTINCT, IN, EXISTS,
+        BETWEEN, LIKE, IS, NULL, PRIMARY, KEY, FOREIGN, REFERENCES, CONSTRAINT, DATABASE, USE, IF, ELSE,
+        END, BEGIN, TRANSACTION, COMMIT, ROLLBACK, GRANT, REVOKE, UNION, ALL, EXCEPT, INTERSECT,
+        WITH, PROCEDURE, FUNCTION, TRIGGER, CURSOR, DECLARE, FETCH, OPEN, CLOSE, DEALLOCATE, VARCHAR, INT,
+        AUTO_INCREMENT, ENGINE, CHARSET, DEFAULT, TEXT, DATETIME, TIMESTAMP, RECURSIVE
+    },
+    morekeywords=[2]{
+        MAX, MIN, COALESCE, COUNT, SUM, AVG, LENGTH, UPPER, LOWER, CONCAT, NOW
+    },
+    sensitive=true,
+    morecomment=[l]--,
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]",
+    commentstyle=\color{mysql_comment_green}\ttfamily,
+    keywordstyle=\color{mysql_keyword_blue}\bfseries,
+    keywordstyle=[2]\color{mysql_function_amber}\bfseries,
+    stringstyle=\color{red}\ttfamily,
+    identifierstyle=\color{black},
+    basewidth={0.5em,0.5em},
+    morestring=[b]`,
+    stringstyle=\color{mysql_identifier_chestnut}
+}
+
+\lstset{
+    basicstyle=\ttfamily,                               % Set font type
+    keywordstyle=\color{blue}\bfseries,                 % Set keyword color to blue and bold
+    stringstyle=\color{red},                            % Set string color to red
+    commentstyle=\color{mysql_comment_green}\itshape,   % Set comment color to gray and italic
+    breaklines=true,                                    % Enable line breaking
+    frame=single,                                       % Add a frame around the code
+    numbers=left,                                       % Add line numbers on the left
+    numberstyle=\tiny\color{gray},                      % Style for line numbers
+    backgroundcolor=\color{lightgray!20},               % Background color
+    captionpos=b,                                       % Caption position at the bottom
+    showstringspaces=false                              % Don't show spaces in strings
+}
 
 % \addbibresource{report.bib}
 
@@ -389,6 +436,7 @@ Operations and frequency are described in \autoref{tab:op_fr}.
 
 \addcontentsline{toc}{subsection}{Navigation and access}
 \subsection*{Navigation and access}
+\label{subsec:ops}
 
 \subsubsection*{1. Subscribe a new user}
 \label{subsubsec:op1}
@@ -776,18 +824,172 @@ NOTES:\newline
 `UserIdApproval' and `timeApproval' should be both present or both absent at the same time.\newline
 \newline
 \textbf{REQUIREMENTS}(\underline{RequirementId}, title, description, body*, type, isActive, UserIdCreation: \textit{USERS},
-timeCreation, UserIdEditing: \textit{USERS}, timeEditing, timeDevelopment, progressPercentage, estimatedTime, takenTime,
+timeCreation, UserIdEditing: \textit{USERS}, timeEditing, timeDevelopment, progressPercentage, estimatedHours, takenHours,
 RequestId: \textit{REQUESTS}, ParentRequirementId*: \textit{REQUIREMENTS})\newline
 \newline
 \textbf{HISTORIC\_REQUESTS}(\underline{RequestId}: \textit{REQUESTS}, \underline{RequestVersion}, title, description, body*, type,
 isActive, UserIdEditing: \textit{USERS}, timeEditing, timeApproval, ReleaseName: \textit{RELEASES})\newline
 \newline
 \textbf{HISTORIC\_REQUIREMENTS}(\underline{RequirementId}: \textit{REQUIREMENTS}, \underline{RequirementVersion}, title,
-description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing,  timeDevelopment, estimatedTime, effectiveTime,
+description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing,  timeDevelopment, estimatedHours, takenHours,
 (RequestId, RequestVersion): \textit{HISTORIC\_REQUESTS},
 (ParentRequirementId, ParentRequirementVersion)*: \textit{HISTORIC\_REQUIREMENTS}, ReleaseName: \textit{RELEASES})
 
-% \subsubsection*{Translation in SQL query}
+\addcontentsline{toc}{section}{MySQL queries}
+\section*{MySQL queries}
+
+In this section the previously described \hyperref[subsec:ops]{operations} are translated into MySQL queries.
+
+First operation query described in \autoref{lst:mysqlquery1}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 1}, label={lst:mysqlquery1}]
+    -- UserId was set as AUTO_INCREMENT, so it can be omitted here
+    INSERT INTO `USERS` (`username`, `name`, `surname`, `email`,
+                         `phone`, `company`, `isEditor`)
+    VALUES (?, ?, ?, ?, ?, ?, ?);
+\end{lstlisting}
+
+Second operation query described in \autoref{lst:mysqlquery2}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 2}, label={lst:mysqlquery2}]
+    SELECT *
+    FROM `REQUESTS`
+    WHERE `RequestId` = ?;
+\end{lstlisting}
+
+Third operation query described in \autoref{lst:mysqlquery3}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 3}, label={lst:mysqlquery3}]
+    INSERT INTO `REQUESTS` (`title`, `description`, `type`,
+                            `isActive`, `UserIdCreation`,
+                            `UserIdEditing`, `timeEditing`)
+    VALUES (?, ?, ?, ?, ?, ?, NOW());
+\end{lstlisting}
+
+Forth operation query described in \autoref{lst:mysqlquery4}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 4}, label={lst:mysqlquery4}]
+    UPDATE `REQUESTS`
+    SET `title` = ?,
+        `description` = ?,
+        `body` = ?,
+        `type` = ?,
+        `isActive` = ?,
+        `UserIdEditing` = ?,
+        `timeEditing` = NOW()
+    WHERE `RequestId` = ?;
+\end{lstlisting}
+
+Fifth operation query described in \autoref{lst:mysqlquery5}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 5}, label={lst:mysqlquery5}]
+    UPDATE `REQUESTS`
+    SET `UserIdApproval` = ?,
+        `timeApproval` = NOW(),
+        `UserIdEditing` = ?,
+        `timeEditing` = NOW()
+    WHERE `RequestId` = ?;
+\end{lstlisting}
+
+Sixth operation query described in \autoref{lst:mysqlquery6}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 6}, label={lst:mysqlquery6}]
+    SELECT *
+    FROM `REQUIREMENTS`
+    WHERE `RequirementId` = ?;
+\end{lstlisting}
+
+Seventh operation query described in \autoref{lst:mysqlquery8}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 7}, label={lst:mysqlquery7}]
+    INSERT INTO `REQUIREMENTS` (`title`, `description`, `type`,
+                                `isActive`, `UserIdCreation`,
+                                `UserIdEditing`, `timeEditing`
+                                `RequestId`, `ParentRequirementId`)
+    VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?);
+\end{lstlisting}
+
+Eighth operation query described in \autoref{lst:mysqlquery8}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 8}, label={lst:mysqlquery8}]
+    UPDATE `REQUIREMENTS`
+    SET `title` = ?,
+        `description` = ?,
+        `body` = ?,
+        `type` = ?,
+        `isActive` = ?,
+        `UserIdEditing` = ?,
+        `timeEditing` = NOW(),
+        `progressPercentage` = ?,
+        `estimatedHours` = ?,
+        `takenHours` = ?
+    WHERE `RequestId` = ?;
+\end{lstlisting}
+
+Ninth operation query described in \autoref{lst:mysqlquery9}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 9}, label={lst:mysqlquery9}]
+    UPDATE `REQUIREMENTS`
+    SET `isActive` = ?,
+        `UserIdEditing` = ?,
+        `timeEditing` = NOW(),
+    WHERE `RequestId` = ?;
+\end{lstlisting}
+
+Tenth operation query described in \autoref{lst:mysqlquery10}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 10}, label={lst:mysqlquery10}]
+    SELECT *
+    FROM `RELEASES`
+    WHERE `ReleaseName` = ?;
+\end{lstlisting}
+
+Eleventh operation query described in \autoref{lst:mysqlquery11}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 11}, label={lst:mysqlquery11}]
+    INSERT INTO `RELEASES` (`ReleaseName`, `description`, `UserIdCreation`)
+    VALUES (?, ?, ?);
+\end{lstlisting}
+
+Twelfth operation query described in \autoref{lst:mysqlquery12}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 12}, label={lst:mysqlquery12}]
+    SELECT `HISTORIC_REQUESTS`.*, `HISTORIC_REQUIREMENTS`.*
+    FROM `RELEASES`, `HISTORIC_REQUESTS`, `HISTORIC_REQUIREMENTS`
+    WHERE `HISTORIC_REQUESTS`.`ReleaseName` = `RELEASES`.`ReleaseName` AND
+          `HISTORIC_REQUIREMENTS`.`ReleaseName` = `RELEASES`.`ReleaseName`
+\end{lstlisting}
+
+Thirteenth operation query described in \autoref{lst:mysqlquery13}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 13}, label={lst:mysqlquery13}]
+    SELECT `HISTORIC_REQUIREMENTS`.*
+    FROM `REQUIREMENTS`, `HISTORIC_REQUIREMENTS`
+    WHERE `HISTORIC_REQUIREMENTS`.`RequirementId` = `REQUIREMENTS`.`RequirementId`
+\end{lstlisting}
+
+Fourteenth operation query described in \autoref{lst:mysqlquery14}.
+
+\begin{lstlisting}[language=MySQL, caption={op. 14}, label={lst:mysqlquery14}]
+    -- Common Table Expressions are supported from MySQL 8
+    WITH RECURSIVE `RequirementTree` AS (
+        -- Anchor member: Select the starting node (i.e. the root of the branch)
+        SELECT *
+        FROM `REQUIREMENTS`
+        WHERE `RequirementId` = ? -- Replace ? with the ID of the root requirement
+        UNION ALL
+        -- Recursive member: Select all children of the current level
+        SELECT r.*
+        FROM `REQUIREMENTS` r
+        INNER JOIN `RequirementTree` rt ON r.`ParentRequirementId` = rt.`RequirementId`
+    )
+    -- Final selection: Sum up the values from the CTE
+    SELECT
+        SUM(`progressPercentage`) AS `totalProgressPercentage`,
+        SUM(`estimatedHours`) AS `totalEstimatedTime`,
+        SUM(`takenHours`) AS `totalTakenTime`
+    FROM `RequirementTree`;
+\end{lstlisting}
 
 % \appendix
 

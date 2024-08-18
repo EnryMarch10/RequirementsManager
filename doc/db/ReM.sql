@@ -33,7 +33,16 @@ CREATE TABLE `USERS` (
      CONSTRAINT `UNIQUE_USERNAME`
           UNIQUE KEY `UniqueUsername` (`username`),
      CONSTRAINT `UNIQUE_EMAIL`
-          UNIQUE KEY `UniqueEmail` (`email`)
+          UNIQUE KEY `UniqueEmail` (`email`),
+     CHECK (`email` <> ''
+          AND `email` NOT LIKE ' %'
+          AND `email` NOT LIKE '% '),
+     CHECK (`name` <> ''
+          AND `name` NOT LIKE ' %'
+          AND `name` NOT LIKE '% '),
+     CHECK (`surname` <> ''
+          AND `surname` NOT LIKE ' %'
+          AND `surname` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `RELEASES` (
@@ -43,7 +52,10 @@ CREATE TABLE `RELEASES` (
      `nRequests` INT UNSIGNED NOT NULL DEFAULT 0,
      `nRequirements` INT UNSIGNED NOT NULL DEFAULT 0,
      `UserIdCreation` INT UNSIGNED NOT NULL,
-     PRIMARY KEY (`ReleaseName`)
+     PRIMARY KEY (`ReleaseName`),
+     CHECK (`ReleaseName` <> ''
+          AND `ReleaseName` NOT LIKE ' %'
+          AND `ReleaseName` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `REQUESTS` (
@@ -51,10 +63,10 @@ CREATE TABLE `REQUESTS` (
      `title` VARCHAR(50) NOT NULL,
      `description` VARCHAR(300) NOT NULL,
      `body` MEDIUMBLOB,
-     `type` VARCHAR(50) NOT NULL,
+     `type` ENUM('bug', 'functionality') NOT NULL,
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
      `UserIdCreation` INT UNSIGNED NOT NULL,
-     `timeCreation` DATETIME NOT NULL,
+     `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `UserIdEditing` INT UNSIGNED NOT NULL,
      `timeEditing` DATETIME NOT NULL,
      `UserIdApproval` INT UNSIGNED,
@@ -63,7 +75,10 @@ CREATE TABLE `REQUESTS` (
      CHECK (`isActive` IN ('Y', 'N')),
      CONSTRAINT `CHK_APPROVAL`
           CHECK((`UserIdApproval` IS NOT NULL AND `timeApproval` IS NOT NULL)
-               OR (`UserIdApproval` IS NULL AND `timeApproval` IS NULL))
+               OR (`UserIdApproval` IS NULL AND `timeApproval` IS NULL)),
+     CHECK (`title` <> ''
+          AND `title` NOT LIKE ' %'
+          AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `REQUIREMENTS` (
@@ -71,20 +86,24 @@ CREATE TABLE `REQUIREMENTS` (
      `title` VARCHAR(50) NOT NULL,
      `description` VARCHAR(300) NOT NULL,
      `body` MEDIUMBLOB,
-     `type` VARCHAR(50) NOT NULL,
+     `type` ENUM('functional', 'non-functional') NOT NULL,
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
      `UserIdCreation` INT UNSIGNED NOT NULL,
-     `timeCreation` DATETIME NOT NULL,
+     `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `UserIdEditing` INT UNSIGNED NOT NULL,
      `timeEditing` DATETIME NOT NULL,
-     `timeDevelopment` DATETIME NOT NULL,
-     `progressPercentage` INT UNSIGNED NOT NULL,
-     `estimatedTime` VARCHAR(50) NOT NULL,
-     `takenTime` VARCHAR(50) NOT NULL,
+     `progressPercentage` INT UNSIGNED NOT NULL DEFAULT 0,
+     `estimatedHours` FLOAT NOT NULL DEFAULT 0.0,
+     `takenHours` FLOAT NOT NULL DEFAULT 0.0,
      `RequestId` INT UNSIGNED NOT NULL,
      `ParentRequirementId` INT UNSIGNED,
      PRIMARY KEY (`RequirementId`),
-     CHECK (`isActive` IN ('Y', 'N'))
+     CHECK (`isActive` IN ('Y', 'N')),
+     CHECK (`estimatedHours` >= 0),
+     CHECK (`takenHours` >= 0),
+     CHECK (`title` <> ''
+          AND `title` NOT LIKE ' %'
+          AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `HISTORIC_REQUESTS` (
@@ -93,14 +112,17 @@ CREATE TABLE `HISTORIC_REQUESTS` (
      `title` VARCHAR(50) NOT NULL,
      `description` VARCHAR(300) NOT NULL,
      `body` MEDIUMBLOB,
-     `type` VARCHAR(50) NOT NULL,
+     `type` ENUM('bug', 'functionality') NOT NULL,
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
      `UserIdEditing` INT UNSIGNED NOT NULL,
      `timeEditing` DATETIME NOT NULL,
      `timeApproval` DATETIME NOT NULL,
      `ReleaseName` VARCHAR(50) NOT NULL,
      PRIMARY KEY (`RequestId`, `RequestVersion`),
-     CHECK (`isActive` IN ('Y', 'N'))
+     CHECK (`isActive` IN ('Y', 'N')),
+     CHECK (`title` <> ''
+          AND `title` NOT LIKE ' %'
+          AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `HISTORIC_REQUIREMENTS` (
@@ -109,13 +131,12 @@ CREATE TABLE `HISTORIC_REQUIREMENTS` (
      `title` VARCHAR(50) NOT NULL,
      `description` VARCHAR(300) NOT NULL,
      `body` MEDIUMBLOB,
-     `type` VARCHAR(50) NOT NULL,
+     `type` ENUM('functional', 'non-functional') NOT NULL,
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
      `UserIdEditing` INT UNSIGNED NOT NULL,
      `timeEditing` DATETIME NOT NULL,
-     `timeDevelopment` DATETIME NOT NULL,
-     `estimatedTime` VARCHAR(50) NOT NULL,
-     `effectiveTime` VARCHAR(50) NOT NULL,
+     `estimatedHours` FLOAT NOT NULL DEFAULT 0.0,
+     `takenHours` FLOAT NOT NULL DEFAULT 0.0,
      `RequestId` INT UNSIGNED NOT NULL,
      `RequestVersion` INT UNSIGNED NOT NULL,
      `ParentRequirementId` INT UNSIGNED,
@@ -125,7 +146,12 @@ CREATE TABLE `HISTORIC_REQUIREMENTS` (
      CHECK (`isActive` IN ('Y', 'N')),
      CONSTRAINT `CHK_HISTORIC_KINSHIP`
           CHECK((`ParentRequirementId` IS NOT NULL AND `ParentRequirementVersion` IS NOT NULL)
-               OR (`ParentRequirementId` IS NULL AND `ParentRequirementVersion` IS NULL))
+               OR (`ParentRequirementId` IS NULL AND `ParentRequirementVersion` IS NULL)),
+     CHECK (`estimatedHours` >= 0),
+     CHECK (`takenHours` >= 0),
+     CHECK (`title` <> ''
+          AND `title` NOT LIKE ' %'
+          AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 -- Constraints Section
@@ -202,7 +228,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Invalid `USERS`.`username` format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
     END IF;
-END//
+END;//
 
 CREATE TRIGGER `TRG_VALIDATE_USER_USERNAME_BEFORE_UPDATE` BEFORE UPDATE ON `USERS`
 FOR EACH ROW
@@ -211,7 +237,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Invalid `USERS`.`username` format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
     END IF;
-END//
+END;//
 
 -- n REQUESTS
 CREATE TRIGGER `TRG_INCREASE_RELEASE_REQUESTS_COUNTER` AFTER INSERT ON `HISTORIC_REQUESTS`
@@ -220,7 +246,7 @@ BEGIN
     UPDATE `RELEASES`
     SET `nRequests` = `nRequests` + 1
     WHERE `ReleaseName` = NEW.`ReleaseName`;
-END//
+END;//
 
 CREATE TRIGGER `TRG_DECREASE_RELEASE_REQUESTS_COUNTER` AFTER DELETE ON `HISTORIC_REQUESTS`
 FOR EACH ROW
@@ -228,7 +254,7 @@ BEGIN
     UPDATE `RELEASES`
     SET `nRequests` = `nRequests` - 1
     WHERE `ReleaseName` = OLD.`ReleaseName`;
-END//
+END;//
 
 -- n REQUIREMENTS
 CREATE TRIGGER `TRG_INCREASE_RELEASE_REQUIREMENTS_COUNTER` AFTER INSERT ON `HISTORIC_REQUIREMENTS`
@@ -237,7 +263,7 @@ BEGIN
     UPDATE `RELEASES`
     SET `nRequirements` = `nRequirements` + 1
     WHERE `ReleaseName` = NEW.`ReleaseName`;
-END//
+END;//
 
 CREATE TRIGGER `TRG_DECREASE_RELEASE_REQUIREMENTS_COUNTER` AFTER DELETE ON `HISTORIC_REQUIREMENTS`
 FOR EACH ROW
@@ -245,6 +271,27 @@ BEGIN
     UPDATE `RELEASES`
     SET `nRequirements` = `nRequirements` - 1
     WHERE `ReleaseName` = OLD.`ReleaseName`;
-END//
+END;//
+
+-- REQUIREMENTS parent avoid recursive reference
+CREATE TRIGGER `TRG_BEFORE_REQUIREMENT_INSERT`
+BEFORE INSERT ON REQUIREMENTS
+FOR EACH ROW
+BEGIN
+    IF NEW.`RequirementId` = NEW.`ParentRequirementId` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: A requirement cannot be its own parent.';
+    END IF;
+END;//
+
+CREATE TRIGGER `TRG_BEFORE_REQUIREMENT_UPDATE`
+BEFORE UPDATE ON REQUIREMENTS
+FOR EACH ROW
+BEGIN
+    IF NEW.`RequirementId` = NEW.`ParentRequirementId` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: A requirement cannot be its own parent.';
+    END IF;
+END;//
 
 delimiter ;
