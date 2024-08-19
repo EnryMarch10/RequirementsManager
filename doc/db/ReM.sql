@@ -224,7 +224,7 @@ delimiter //
 CREATE TRIGGER `TRG_VALIDATE_USER_USERNAME_BEFORE_INSERT` BEFORE INSERT ON `USERS`
 FOR EACH ROW
 BEGIN
-    IF NEW.`username` NOT REGEXP CAST('^[a-zA-Z][a-zA-Z0-9._-]*$' AS BINARY) THEN
+    IF NEW.`username` NOT REGEXP '^[a-zA-Z][a-zA-Z0-9._-]*$' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Invalid `USERS`.`username` format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
     END IF;
@@ -233,7 +233,7 @@ END;//
 CREATE TRIGGER `TRG_VALIDATE_USER_USERNAME_BEFORE_UPDATE` BEFORE UPDATE ON `USERS`
 FOR EACH ROW
 BEGIN
-    IF NEW.`username` NOT REGEXP CAST('^[a-zA-Z][a-zA-Z0-9._-]*$' AS BINARY) THEN
+    IF NEW.`username` NOT REGEXP '^[a-zA-Z][a-zA-Z0-9._-]*$' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Invalid `USERS`.`username` format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
     END IF;
