@@ -1,1 +1,8 @@
+# Sets LF as default for all files
 * text=auto eol=lf
+
+# Allows CRLF specifically for C# files
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.resx text eol=crlf
