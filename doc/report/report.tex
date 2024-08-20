@@ -17,6 +17,9 @@
 \usepackage[table, svgnames]{xcolor}
 \usepackage[backend=biber, style=alphabetic, sorting=ynt]{biblatex}
 
+% Avoids URLs to overfull \hbox
+\usepackage{xurl}
+
 % Normal table
 \colorlet{dark_title_rows}{gray!90}
 \colorlet{light_odd_rows}{gray!15}
@@ -107,6 +110,7 @@ the \emph{Software Engineering} process of collecting and creating requirements.
 
 \addcontentsline{toc}{chapter}{Analysis}
 \chapter*{Analysis}
+\label{chap:analysis}
 
 It's requested to realize a database that allows a team to optimize Software's Analysis by managing Requirements creation.
 Each one of them descends from a Request that could be created by a team member or by the project customers.
@@ -814,26 +818,28 @@ NOTES:\newline
 Unique(username)\newline
 Unique(email)\newline
 \newline
-\textbf{RELEASES}(\underline{ReleaseName}, description, timeCreation, nRequests, nRequirements,
+\textbf{RELEASES}(\underline{ReleaseId}, name, description, timeCreation, nRequests, nRequirements,
 UserIdCreation: \textit{USERS})\newline
+NOTES:\newline
+Unique(name)\newline
 \newline
 \textbf{REQUESTS}(\underline{RequestId}, title, description, body*, type, isActive, UserIdCreation: \textit{USERS}, timeCreation,
 UserIdEditing: \textit{USERS}, timeEditing, UserIdApproval*: \textit{USERS}, timeApproval*)\newline
 \newline
 NOTES:\newline
-`UserIdApproval' and `timeApproval' should be both present or both absent at the same time.\newline
+A constraint should make `UserIdApproval' and `timeApproval' to be both present or absent at the same time.\newline
 \newline
 \textbf{REQUIREMENTS}(\underline{RequirementId}, title, description, body*, type, isActive, UserIdCreation: \textit{USERS},
-timeCreation, UserIdEditing: \textit{USERS}, timeEditing, timeDevelopment, progressPercentage, estimatedHours, takenHours,
+timeCreation, UserIdEditing: \textit{USERS}, timeEditing, progressPercentage, estimatedHours, takenHours,
 RequestId: \textit{REQUESTS}, ParentRequirementId*: \textit{REQUIREMENTS})\newline
 \newline
 \textbf{HISTORIC\_REQUESTS}(\underline{RequestId}: \textit{REQUESTS}, \underline{RequestVersion}, title, description, body*, type,
-isActive, UserIdEditing: \textit{USERS}, timeEditing, timeApproval, ReleaseName: \textit{RELEASES})\newline
+isActive, UserIdEditing: \textit{USERS}, timeEditing, timeApproval, ReleaseId: \textit{RELEASES})\newline
 \newline
 \textbf{HISTORIC\_REQUIREMENTS}(\underline{RequirementId}: \textit{REQUIREMENTS}, \underline{RequirementVersion}, title,
-description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing,  timeDevelopment, estimatedHours, takenHours,
+description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing, estimatedHours, takenHours,
 (RequestId, RequestVersion): \textit{HISTORIC\_REQUESTS},
-(ParentRequirementId, ParentRequirementVersion)*: \textit{HISTORIC\_REQUIREMENTS}, ReleaseName: \textit{RELEASES})
+(ParentRequirementId, ParentRequirementVersion)*: \textit{HISTORIC\_REQUIREMENTS}, ReleaseId: \textit{RELEASES})
 
 \addcontentsline{toc}{section}{MySQL queries}
 \section*{MySQL queries}
@@ -990,6 +996,27 @@ Fourteenth operation query described in \autoref{lst:mysqlquery14}.
         SUM(`takenHours`) AS `totalTakenTime`
     FROM `RequirementTree`;
 \end{lstlisting}
+
+\addcontentsline{toc}{chapter}{Application}
+\chapter*{Application}
+
+\addcontentsline{toc}{section}{General}
+\section*{General}
+
+It was chosen a C\# .NET Core 8.0 application running on Windows with Windows Forms GUI.
+As anticipated with the queries the database is MySQL.
+
+Following this report philosophy it was adopted a database first approach.
+So at first the \nameref{chap:analysis} was written, with: requirements, conceptual and logical design, and then the
+implementation started.
+A file named `ReM.sql' was used as a script, partially derived from design and partially handwritten, to create schema (database)
+and tables in MySQL. It includes features to avoid illegal situations using checks and triggers, except for historic data that
+should be modified only behind the scenes in a real application.
+
+So as to map data from MySQL to .NET Core 8.0 it was chosen to use Entity Framework Core.
+In particular with the process of `Scaffolding'
+\footnote{\url{https://dev.mysql.com/doc/connector-net/en/connector-net-entityframework-core-scaffold-example.html}}
+it was possible to map directly the `ReM' schema from MySQL to .NET Core 8.0 classes.
 
 % \appendix
 
