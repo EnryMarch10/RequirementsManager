@@ -84,7 +84,7 @@ public partial class EntityControl<T> where T : new()
         try
         {
             using RemContext context = new();
-            DataGridViewBeforeAddingAndUpdatingHandler();
+            DataGridViewBeforeAddingAndUpdatingHandler?.Invoke();
             HashSet<T> added = [];
             foreach (var item in _newItems)
             {

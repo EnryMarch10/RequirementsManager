@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using ReM.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ReM.View;
 
@@ -54,7 +54,7 @@ public partial class RequestsControl : UserControl
             item.TimeApproval);
     }
 
-    protected static bool DataGridViewChangeValue(DataGridView dataGridView, Request item, int row, int column)
+    private static bool DataGridViewChangeValue(DataGridView dataGridView, Request item, int row, int column)
     {
         var value = dataGridView[column, row].Value;
         var result = string.Empty;

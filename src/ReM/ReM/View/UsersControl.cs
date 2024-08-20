@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Diagnostics;
 using ReM.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +5,7 @@ namespace ReM.View;
 
 public partial class UsersControl : UserControl
 {
-    private List<User> _users = [];
+    private EntityControl<User> _entityControl = null!;
 
     public UsersControl()
     {
@@ -16,12 +14,27 @@ public partial class UsersControl : UserControl
 
     private void Users_Load(object sender, EventArgs e)
     {
-        DataGridView_Update();
+        _entityControl = new EntityControl<User>(dataGridViewUsers)
+        {
+            DataGridViewAddHandler = DataGridViewAdd,
+            DataGridViewChangeValueHandler = DataGridViewChangeValue
+        };
+        DataViewUpdate();
     }
 
-    private void DataGridView_Add(User user)
+    private void DataViewUpdate()
     {
-        DataGridViewRow row = (DataGridViewRow)dataGridViewUsers.RowTemplate.Clone();
+        User[] users;
+        using (RemContext context = new())
+        {
+            context.Users.Load();
+            users = [.. context.Users.Local];
+        }
+        _entityControl.DataGridViewUpdate(users);
+    }
+
+    private void DataGridViewAdd(DataGridViewRow row, User user)
+    {
         row.CreateCells(dataGridViewUsers,
             user.UserId,
             user.Username,
@@ -31,72 +44,44 @@ public partial class UsersControl : UserControl
             user.Phone,
             user.Company,
             user.IsEditor);
-        row.Tag = user;
-        dataGridViewUsers.Rows.Add(row);
     }
 
-    private void DataGridView_Update(ICollection<User> users)
+    private static bool DataGridViewChangeValue(DataGridView dataGridView, User item, int row, int column)
     {
-        SortOrder order = dataGridViewUsers.SortOrder;
-        DataGridViewColumn columnSorted = dataGridViewUsers.SortedColumn;
-        ListSortDirection columnSorting = dataGridViewUsers.SortOrder == SortOrder.Ascending ?
-            ListSortDirection.Ascending : ListSortDirection.Descending;
-        dataGridViewUsers.Rows.Clear();
-
-        foreach (var user in users)
-        {
-            DataGridView_Add(user);
-        }
-        if ((columnSorted != null) && (order != SortOrder.None))
-        {
-            dataGridViewUsers.Sort(columnSorted, columnSorting);
-        }
-    }
-
-    private void DataGridView_Update()
-    {
-        using RemContext context = new();
-        context.Users.Load();
-        _users = [.. context.Users.Local];
-        DataGridView_Update(_users);
-    }
-
-    private bool DataGridView_ChangeValue(User user, int row, int column)
-    {
-        var value = dataGridViewUsers[column, row].Value;
+        var value = dataGridView[column, row].Value;
         var result = string.Empty;
         if (value is not null)
         {
             result = value.ToString() ?? string.Empty;
         }
 
-        if (column == dataGridViewUsers.Columns["ColumnUsername"].Index)
+        if (column == dataGridView.Columns["ColumnUsername"].Index)
         {
-            user.Username = result;
+            item.Username = result;
         }
-        else if (column == dataGridViewUsers.Columns["ColumnName"].Index)
+        else if (column == dataGridView.Columns["ColumnName"].Index)
         {
-            user.Name = result;
+            item.Name = result;
         }
-        else if (column == dataGridViewUsers.Columns["ColumnSurname"].Index)
+        else if (column == dataGridView.Columns["ColumnSurname"].Index)
         {
-            user.Surname = result;
+            item.Surname = result;
         }
-        else if (column == dataGridViewUsers.Columns["ColumnEmail"].Index)
+        else if (column == dataGridView.Columns["ColumnEmail"].Index)
         {
-            user.Email = result;
+            item.Email = result;
         }
-        else if (column == dataGridViewUsers.Columns["ColumnPhone"].Index)
+        else if (column == dataGridView.Columns["ColumnPhone"].Index)
         {
-            user.Phone = result;
+            item.Phone = result;
         }
-        else if (column == dataGridViewUsers.Columns["ColumnCompany"].Index)
+        else if (column == dataGridView.Columns["ColumnCompany"].Index)
         {
-            user.Company = result;
+            item.Company = result;
         }
-        else if (column == dataGridViewUsers.Columns["ColumnIsEditor"].Index)
+        else if (column == dataGridView.Columns["ColumnIsEditor"].Index)
         {
-            user.IsEditor = result;
+            item.IsEditor = result;
         }
         else
         {
@@ -105,77 +90,23 @@ public partial class UsersControl : UserControl
         return true;
     }
 
+    private void ButtonRefresh_Click(object sender, EventArgs e)
+    {
+        DataViewUpdate();
+    }
+
     private void DataGridViewUsers_CellValueChanged(object sender, DataGridViewCellEventArgs e)
     {
-        if (e.ColumnIndex != -1 && e.RowIndex != -1)
-        {
-            if (dataGridViewUsers.Rows[e.RowIndex].Tag is User user)
-            {
-                if (DataGridView_ChangeValue(user, e.RowIndex, e.ColumnIndex))
-                {
-                    Debug.WriteLine($"User is: {user}");
-                }
-            }
-            else
-            {
-                var newUser = new User();
-                DataGridView_ChangeValue(newUser, e.RowIndex, e.ColumnIndex);
-                _users.Add(newUser);
-                dataGridViewUsers.Rows[e.RowIndex].Tag = newUser;
-                Debug.WriteLine($"New user is: {newUser}");
-            }
-        }
+        _entityControl?.DataGridViewUsersCellValueChanged(e.RowIndex, e.ColumnIndex);
     }
 
     private void ButtonUpdate_Click(object sender, EventArgs e)
     {
-        try
-        {
-            using RemContext context = new();
-            context.Users.UpdateRange(_users);
-            var nUpdates = context.SaveChanges();
-            Debug.WriteLine($"Saved {nUpdates} changes");
-        }
-        catch (Exception ex)
-        {
-            var cause = ex.InnerException is null ? "UNKNOWN" : ex.InnerException.Message;
-            MessageBox.Show($"Error occurred when updating users, try to refresh data.\nMessage: `{cause}`",
-                    "Users update",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-        }
-    }
-
-    private void ButtonRefresh_Click(object sender, EventArgs e)
-    {
-        DataGridView_Update();
+        _entityControl.ButtonUpdateClick();
     }
 
     private void ButtonDelete_Click(object sender, EventArgs e)
     {
-        var selectedRows = dataGridViewUsers.SelectedRows;
-        Debug.WriteLine($"Selected rows count = {selectedRows.Count}");
-        if (selectedRows.Count == 1 && selectedRows[0].Tag is User user)
-        {
-            try
-            {
-                using RemContext context = new();
-                context.Remove(user);
-                var nUpdates = context.SaveChanges();
-                Debug.WriteLine($"Saved {nUpdates} changes");
-                if (nUpdates == 1)
-                {
-                    dataGridViewUsers.Rows.RemoveAt(selectedRows[0].Index);
-                }
-            }
-            catch (Exception ex)
-            {
-                var cause = ex.InnerException is null ? "UNKNOWN" : ex.InnerException.Message;
-                MessageBox.Show($"Error occurred when removing user, try to refresh data.\nMessage: `{cause}`",
-                        "User removal",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-            }
-        }
+        _entityControl.ButtonDeleteClick();
     }
 }
