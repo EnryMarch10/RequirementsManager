@@ -1,11 +1,11 @@
-using ReM.Models;
 using Microsoft.EntityFrameworkCore;
+using ReM.Models;
 
 namespace ReM.View;
 
 public partial class ReleasesControl : UserControl
 {
-    private EntityControl<Release> _entityControl = null!;
+    private EntityCRUDManager<Release> _entityControl = null!;
 
     public ReleasesControl()
     {
@@ -14,7 +14,7 @@ public partial class ReleasesControl : UserControl
 
     private void Releases_Load(object sender, EventArgs e)
     {
-        _entityControl = new EntityControl<Release>(dataGridViewReleases)
+        _entityControl = new EntityCRUDManager<Release>(dataGridViewReleases)
         {
             DataGridViewAddHandler = DataGridViewAdd,
             DataGridViewChangeValueHandler = DataGridViewChangeValue
@@ -79,16 +79,16 @@ public partial class ReleasesControl : UserControl
 
     private void DataGridViewUsers_CellValueChanged(object sender, DataGridViewCellEventArgs e)
     {
-        _entityControl?.DataGridViewUsersCellValueChanged(e.RowIndex, e.ColumnIndex);
+        _entityControl?.DataGridView_CellValueChanged(e.RowIndex, e.ColumnIndex);
     }
 
     private void ButtonUpdate_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonUpdateClick();
+        _entityControl.AddAndUpdateDbData();
     }
 
     private void ButtonDelete_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonDeleteClick();
+        _entityControl.DeleteDbData();
     }
 }

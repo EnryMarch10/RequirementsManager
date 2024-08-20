@@ -4,7 +4,7 @@ using ReM.Models;
 namespace ReM.View;
 public partial class RequirementsControl : UserControl
 {
-    private EntityControl<Requirement> _entityControl = null!;
+    private EntityCRUDManager<Requirement> _entityControl = null!;
     private DateTime time;
 
     public RequirementsControl()
@@ -14,7 +14,7 @@ public partial class RequirementsControl : UserControl
 
     private void Requirements_Load(object sender, EventArgs e)
     {
-        _entityControl = new EntityControl<Requirement>(dataGridViewRequirements)
+        _entityControl = new EntityCRUDManager<Requirement>(dataGridViewRequirements)
         {
             DataGridViewAddHandler = DataGridViewAdd,
             DataGridViewChangeValueHandler = DataGridViewChangeValue,
@@ -140,16 +140,16 @@ public partial class RequirementsControl : UserControl
 
     private void DataGridViewRequests_CellValueChanged(object sender, DataGridViewCellEventArgs e)
     {
-        _entityControl?.DataGridViewUsersCellValueChanged(e.RowIndex, e.ColumnIndex);
+        _entityControl?.DataGridView_CellValueChanged(e.RowIndex, e.ColumnIndex);
     }
 
     private void ButtonUpdate_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonUpdateClick();
+        _entityControl.AddAndUpdateDbData();
     }
 
     private void ButtonDelete_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonDeleteClick();
+        _entityControl.DeleteDbData();
     }
 }

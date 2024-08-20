@@ -1,10 +1,10 @@
-using ReM.Models;
 using Microsoft.EntityFrameworkCore;
+using ReM.Models;
 
 namespace ReM.View;
 public partial class RequestsControl : UserControl
 {
-    private EntityControl<Request> _entityControl = null!;
+    private EntityCRUDManager<Request> _entityControl = null!;
     private DateTime time;
 
     public RequestsControl()
@@ -14,7 +14,7 @@ public partial class RequestsControl : UserControl
 
     private void Requests_Load(object sender, EventArgs e)
     {
-        _entityControl = new EntityControl<Request>(dataGridViewRequests)
+        _entityControl = new EntityCRUDManager<Request>(dataGridViewRequests)
         {
             DataGridViewAddHandler = DataGridView_Add,
             DataGridViewChangeValueHandler = DataGridViewChangeValue,
@@ -127,16 +127,16 @@ public partial class RequestsControl : UserControl
 
     private void DataGridViewRequests_CellValueChanged(object sender, DataGridViewCellEventArgs e)
     {
-        _entityControl?.DataGridViewUsersCellValueChanged(e.RowIndex, e.ColumnIndex);
+        _entityControl?.DataGridView_CellValueChanged(e.RowIndex, e.ColumnIndex);
     }
 
     private void ButtonUpdate_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonUpdateClick();
+        _entityControl.AddAndUpdateDbData();
     }
 
     private void ButtonDelete_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonDeleteClick();
+        _entityControl.DeleteDbData();
     }
 }

@@ -4,7 +4,7 @@ using ReM.Models;
 namespace ReM.View;
 public partial class UsersControl : UserControl
 {
-    private EntityControl<User> _entityControl = null!;
+    private EntityCRUDManager<User> _entityControl = null!;
 
     public UsersControl()
     {
@@ -13,7 +13,7 @@ public partial class UsersControl : UserControl
 
     private void Users_Load(object sender, EventArgs e)
     {
-        _entityControl = new EntityControl<User>(dataGridViewUsers)
+        _entityControl = new EntityCRUDManager<User>(dataGridViewUsers)
         {
             DataGridViewAddHandler = DataGridViewAdd,
             DataGridViewChangeValueHandler = DataGridViewChangeValue
@@ -96,16 +96,16 @@ public partial class UsersControl : UserControl
 
     private void DataGridViewUsers_CellValueChanged(object sender, DataGridViewCellEventArgs e)
     {
-        _entityControl?.DataGridViewUsersCellValueChanged(e.RowIndex, e.ColumnIndex);
+        _entityControl?.DataGridView_CellValueChanged(e.RowIndex, e.ColumnIndex);
     }
 
     private void ButtonUpdate_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonUpdateClick();
+        _entityControl.AddAndUpdateDbData();
     }
 
     private void ButtonDelete_Click(object sender, EventArgs e)
     {
-        _entityControl.ButtonDeleteClick();
+        _entityControl.DeleteDbData();
     }
 }

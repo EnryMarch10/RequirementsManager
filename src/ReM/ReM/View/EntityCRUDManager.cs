@@ -4,7 +4,7 @@ using ReM.Models;
 
 namespace ReM.View;
 
-public partial class EntityControl<T> where T : new()
+public partial class EntityCRUDManager<T> where T : new()
 {
     private readonly DataGridView _dataGridView;
     private readonly HashSet<T> _newItems = [];
@@ -23,7 +23,7 @@ public partial class EntityControl<T> where T : new()
     public DataGridViewBeforeUpdatingDelegate DataGridViewBeforeUpdatingHandler { get; set; } = null!;
     public DataGridViewBeforeAddingAndUpdatingDelegate DataGridViewBeforeAddingAndUpdatingHandler { get; set; } = null!;
 
-    public EntityControl(DataGridView dataGridView)
+    public EntityCRUDManager(DataGridView dataGridView)
     {
         _dataGridView = dataGridView;
     }
@@ -53,7 +53,7 @@ public partial class EntityControl<T> where T : new()
         }
     }
 
-    public void DataGridViewUsersCellValueChanged(int row, int column)
+    public void DataGridView_CellValueChanged(int row, int column)
     {
         if (row != -1 && column != -1)
         {
@@ -79,7 +79,7 @@ public partial class EntityControl<T> where T : new()
         }
     }
 
-    public void ButtonUpdateClick()
+    public void AddAndUpdateDbData()
     {
         try
         {
@@ -137,7 +137,7 @@ public partial class EntityControl<T> where T : new()
         }
     }
 
-    public void ButtonDeleteClick()
+    public void DeleteDbData()
     {
         var selectedRows = _dataGridView.SelectedRows;
         Debug.WriteLine($"Selected rows count = {selectedRows.Count}");
