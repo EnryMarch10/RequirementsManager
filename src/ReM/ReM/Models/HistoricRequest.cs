@@ -22,17 +22,21 @@ public partial class HistoricRequest
 
     public DateTime TimeEditing { get; set; }
 
+    public uint UserIdApproval { get; set; }
+
     public DateTime TimeApproval { get; set; }
 
-    public string ReleaseName { get; set; } = null!;
+    public uint ReleaseId { get; set; }
 
     public virtual ICollection<HistoricRequirement> HistoricRequirements { get; set; } = new List<HistoricRequirement>();
 
-    public virtual Release ReleaseNameNavigation { get; set; } = null!;
+    public virtual Release Release { get; set; } = null!;
 
     public virtual Request Request { get; set; } = null!;
 
     public virtual User UserIdEditingNavigation { get; set; } = null!;
+
+    public virtual User UserIdApprovalNavigation { get; set; } = null!;
 
     public override bool Equals(object? obj)
     {

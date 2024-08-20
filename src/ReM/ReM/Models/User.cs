@@ -20,7 +20,9 @@ public partial class User
 
     public string IsEditor { get; set; } = null!;
 
-    public virtual ICollection<HistoricRequest> HistoricRequests { get; set; } = new List<HistoricRequest>();
+    public virtual ICollection<HistoricRequest> HistoricRequestUserIdApprovalNavigations { get; set; } = new List<HistoricRequest>();
+
+    public virtual ICollection<HistoricRequest> HistoricRequestUserIdEditingNavigations { get; set; } = new List<HistoricRequest>();
 
     public virtual ICollection<HistoricRequirement> HistoricRequirements { get; set; } = new List<HistoricRequirement>();
 

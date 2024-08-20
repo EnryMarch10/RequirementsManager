@@ -7,9 +7,9 @@ namespace ReM.View;
 public partial class EntityCRUDManager<T> where T : new()
 {
     private readonly DataGridView _dataGridView;
-    private readonly HashSet<T> _newItems = [];
-    private readonly HashSet<T> _updatedItems = [];
-    private HashSet<T> _items = [];
+    public HashSet<T> NewItems { get; } = [];
+    public HashSet<T> UpdatedItems { get; } = [];
+    public HashSet<T> Items { get; private set; } = [];
 
     public delegate void DataGridViewAddDelegate(DataGridViewRow row, T item);
     public delegate bool DataGridViewChangeValueDelegate(DataGridView dataGridView, T item, int row, int column);
@@ -30,9 +30,9 @@ public partial class EntityCRUDManager<T> where T : new()
 
     public void DataGridViewUpdate(ICollection<T> refreshedItems)
     {
-        _items = new HashSet<T>(refreshedItems);
-        _updatedItems.Clear();
-        _newItems.Clear();
+        Items = new HashSet<T>(refreshedItems);
+        UpdatedItems.Clear();
+        NewItems.Clear();
 
         SortOrder order = _dataGridView.SortOrder;
         DataGridViewColumn columnSorted = _dataGridView.SortedColumn;
@@ -40,7 +40,7 @@ public partial class EntityCRUDManager<T> where T : new()
         ListSortDirection.Ascending : ListSortDirection.Descending;
         _dataGridView.Rows.Clear();
 
-        foreach (var item in _items)
+        foreach (var item in Items)
         {
             DataGridViewRow row = (DataGridViewRow)_dataGridView.RowTemplate.Clone();
             DataGridViewAddHandler(row, item);
@@ -62,9 +62,9 @@ public partial class EntityCRUDManager<T> where T : new()
                 if (DataGridViewChangeValueHandler(_dataGridView, item, row, column))
                 {
                     Debug.WriteLine($"Request is: {item}");
-                    if (!_newItems.Contains(item))
+                    if (!NewItems.Contains(item))
                     {
-                        _updatedItems.Add(item);
+                        UpdatedItems.Add(item);
                     }
                 }
             }
@@ -72,73 +72,96 @@ public partial class EntityCRUDManager<T> where T : new()
             {
                 var newItem = new T();
                 DataGridViewChangeValueHandler(_dataGridView, newItem, row, column);
-                _newItems.Add(newItem);
+                NewItems.Add(newItem);
                 _dataGridView.Rows[row].Tag = newItem;
                 Debug.WriteLine($"New request is: {newItem}");
             }
         }
     }
 
-    public void AddAndUpdateDbData()
+    public bool AddAndUpdateDbData(bool add = true, bool update = true)
     {
+        var result = false;
+        if ((!add && !update) ||
+            (add && NewItems.Count == 0 && !update) ||
+            (!add && update && UpdatedItems.Count == 0) ||
+            (add && NewItems.Count == 0 && update && UpdatedItems.Count == 0))
+        {
+            return result;
+        }
         try
         {
             using RemContext context = new();
             DataGridViewBeforeAddingAndUpdatingHandler?.Invoke();
             HashSet<T> added = [];
-            foreach (var item in _newItems)
+            if (add)
             {
-                if (item is not null)
+                foreach (var item in NewItems)
                 {
-                    DataGridViewBeforeAddingHandler?.Invoke(item);
-                    var entity = context.Add(item);
-                    added.Add((T)entity.Entity);
+                    if (item is not null)
+                    {
+                        DataGridViewBeforeAddingHandler?.Invoke(item);
+                        var entity = context.Add(item);
+                        added.Add((T)entity.Entity);
+                    }
                 }
             }
             HashSet<T> updated = [];
-            foreach (var item in _updatedItems)
+            if (update)
             {
-                if (item is not null)
+                foreach (var item in UpdatedItems)
                 {
-                    DataGridViewBeforeUpdatingHandler?.Invoke(item);
-                    var entity = context.Update(item);
-                    updated.Add((T)entity.Entity);
+                    if (item is not null)
+                    {
+                        DataGridViewBeforeUpdatingHandler?.Invoke(item);
+                        var entity = context.Update(item);
+                        updated.Add((T)entity.Entity);
+                    }
                 }
             }
             var nUpdates = context.SaveChanges();
             Debug.WriteLine($"Saved {nUpdates} changes");
-            foreach (var item in _newItems)
+            foreach (var item in NewItems)
             {
-                _items.Remove(item);
+                Items.Remove(item);
             }
-            _newItems.Clear();
-            foreach (var item in _updatedItems)
+            if (add)
             {
-                _items.Remove(item);
+                NewItems.Clear();
             }
-            _updatedItems.Clear();
+            foreach (var item in UpdatedItems)
+            {
+                Items.Remove(item);
+            }
+            if (update)
+            {
+                UpdatedItems.Clear();
+            }
             foreach (var item in added)
             {
-                _items.Add(item);
+                Items.Add(item);
             }
             foreach (var item in updated)
             {
-                _items.Add(item);
+                Items.Add(item);
             }
-            DataGridViewUpdate(_items);
+            DataGridViewUpdate(Items);
+            result = true;
         }
         catch (Exception ex)
         {
             var cause = ex.InnerException is not null ? ex.InnerException.Message : ex.Message;
             MessageBox.Show($"Error occurred when updating {typeof(T).Name}s, try to refresh data.\nMessage: `{cause}`",
-                    $"{typeof(T).Name}s update",
+                    $"{typeof(T).Name}s manager",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
         }
+        return result;
     }
 
-    public void DeleteDbData()
+    public bool DeleteDbData()
     {
+        var result = false;
         var selectedRows = _dataGridView.SelectedRows;
         Debug.WriteLine($"Selected rows count = {selectedRows.Count}");
         if (selectedRows.Count == 1 && selectedRows[0].Tag is T item)
@@ -152,20 +175,22 @@ public partial class EntityCRUDManager<T> where T : new()
                 if (nUpdates == 1)
                 {
                     _dataGridView.Rows.RemoveAt(selectedRows[0].Index);
-                    _updatedItems.Remove(item);
-                    _newItems.Remove(item);
-                    _items.Remove(item);
+                    UpdatedItems.Remove(item);
+                    NewItems.Remove(item);
+                    Items.Remove(item);
                 }
+                result = true;
             }
             catch (Exception ex)
             {
                 var cause = ex.InnerException is not null ? ex.InnerException.Message : ex.Message;
                 MessageBox.Show($"Error occurred when removing {typeof(T).Name}, try to refresh data.\nMessage: `{cause}`",
-                        $"{typeof(T).Name} removal",
+                        $"{typeof(T).Name}s manager",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
             }
         }
+        return result;
     }
 }
 

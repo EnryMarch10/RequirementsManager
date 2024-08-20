@@ -49,17 +49,20 @@ CREATE TABLE `USERS` (
 ) ENGINE InnoDB;
 
 CREATE TABLE `RELEASES` (
-     `ReleaseName` VARCHAR(50) NOT NULL,
+     `ReleaseId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+     `name` VARCHAR(50) NOT NULL,
      `description` VARCHAR(300) NOT NULL DEFAULT '',
      `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `nRequests` INT UNSIGNED NOT NULL DEFAULT 0,
      `nRequirements` INT UNSIGNED NOT NULL DEFAULT 0,
      `UserIdCreation` INT UNSIGNED NOT NULL,
-     PRIMARY KEY (`ReleaseName`),
+     PRIMARY KEY (`ReleaseId`),
+     CONSTRAINT `UNIQUE_RELEASE_NAME`
+          UNIQUE KEY `UniqueName` (`name`),
      CONSTRAINT `CHK_RELEASE_NAME_NOT_EMPTY`
-          CHECK (`ReleaseName` <> ''
-               AND `ReleaseName` NOT LIKE ' %'
-               AND `ReleaseName` NOT LIKE '% ')
+          CHECK (`name` <> ''
+               AND `name` NOT LIKE ' %'
+               AND `name` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `REQUESTS` (
@@ -126,8 +129,9 @@ CREATE TABLE `HISTORIC_REQUESTS` (
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
      `UserIdEditing` INT UNSIGNED NOT NULL,
      `timeEditing` DATETIME NOT NULL,
+     `UserIdApproval` INT UNSIGNED NOT NULL,
      `timeApproval` DATETIME NOT NULL,
-     `ReleaseName` VARCHAR(50) NOT NULL,
+     `ReleaseId` INT UNSIGNED NOT NULL,
      PRIMARY KEY (`RequestId`, `RequestVersion`),
      CONSTRAINT `CHK_H_REQUEST_IS_ACTIVE_VALID`
           CHECK (`isActive` IN ('Y', 'N')),
@@ -153,7 +157,7 @@ CREATE TABLE `HISTORIC_REQUIREMENTS` (
      `RequestVersion` INT UNSIGNED NOT NULL,
      `ParentRequirementId` INT UNSIGNED,
      `ParentRequirementVersion` INT UNSIGNED,
-     `ReleaseName` VARCHAR(50) NOT NULL,
+     `ReleaseId` INT UNSIGNED NOT NULL,
      PRIMARY KEY (`RequirementId`, `RequirementVersion`),
      CONSTRAINT `CHK_H_REQUIREMENT_IS_ACTIVE_VALID`
           CHECK (`isActive` IN ('Y', 'N')),
@@ -205,19 +209,22 @@ ALTER TABLE `REQUIREMENTS`
 
 ALTER TABLE `HISTORIC_REQUESTS`
      ADD CONSTRAINT `FK_RELEASE_REQUESTS`
-          FOREIGN KEY (`ReleaseName`)
-          REFERENCES `RELEASES` (`ReleaseName`),
+          FOREIGN KEY (`ReleaseId`)
+          REFERENCES `RELEASES` (`ReleaseId`),
      ADD CONSTRAINT `FK_ORIGINAL_REQUEST`
           FOREIGN KEY (`RequestId`)
           REFERENCES `REQUESTS` (`RequestId`),
      ADD CONSTRAINT `FK_HISTORIC_EDITING_REQUEST`
           FOREIGN KEY (`UserIdEditing`)
+          REFERENCES `USERS` (`UserId`),
+     ADD CONSTRAINT `FK_HISTORIC_APPROVAL_REQUEST`
+          FOREIGN KEY (`UserIdApproval`)
           REFERENCES `USERS` (`UserId`);
 
 ALTER TABLE `HISTORIC_REQUIREMENTS`
      ADD CONSTRAINT `FK_RELEASE_REQUIREMENTS`
-          FOREIGN KEY (`ReleaseName`)
-          REFERENCES `RELEASES` (`ReleaseName`),
+          FOREIGN KEY (`ReleaseId`)
+          REFERENCES `RELEASES` (`ReleaseId`),
      ADD CONSTRAINT `FK_ORIGINAL_REQUIREMENT`
           FOREIGN KEY (`RequirementId`)
           REFERENCES `REQUIREMENTS` (`RequirementId`),
@@ -237,77 +244,210 @@ ALTER TABLE `HISTORIC_REQUIREMENTS`
 delimiter //
 
 -- username validation
-CREATE TRIGGER `TRG_VALIDATE_USER_USERNAME_BEFORE_INSERT` BEFORE INSERT ON `USERS`
+CREATE TRIGGER `TRG_BEFORE_INSERT_USER` BEFORE INSERT ON `USERS`
 FOR EACH ROW
 BEGIN
-    IF NEW.`username` NOT REGEXP '^[a-zA-Z][a-zA-Z0-9._-]*$' THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Invalid `USERS`.`username` format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
-    END IF;
+     -- USER username must match pattern
+     IF NEW.`username` NOT REGEXP '^[a-zA-Z][a-zA-Z0-9._-]*$' THEN
+          SIGNAL SQLSTATE '45000'
+          SET MESSAGE_TEXT = 'username invalid format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
+     END IF;
 END;//
 
-CREATE TRIGGER `TRG_VALIDATE_USER_USERNAME_BEFORE_UPDATE` BEFORE UPDATE ON `USERS`
+CREATE TRIGGER `TRG_BEFORE_UPDATE_USER` BEFORE UPDATE ON `USERS`
 FOR EACH ROW
 BEGIN
-    IF NEW.`username` NOT REGEXP '^[a-zA-Z][a-zA-Z0-9._-]*$' THEN
+     -- USER role must remain the same once inserted
+     IF OLD.`isEditor` <> NEW.`isEditor` THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Invalid `USERS`.`username` format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
-    END IF;
+        SET MESSAGE_TEXT = 'isEditor cannot be modified after initial insertion.';
+     END IF;
+
+     -- USER username must match pattern
+     IF NEW.`username` NOT REGEXP '^[a-zA-Z][a-zA-Z0-9._-]*$' THEN
+          SIGNAL SQLSTATE '45000'
+          SET MESSAGE_TEXT = 'username invalid format, only accepted ^[a-zA-Z][a-zA-Z0-9._-]*$';
+     END IF;
 END;//
 
 -- n REQUESTS
-CREATE TRIGGER `TRG_INCREASE_RELEASE_REQUESTS_COUNTER` AFTER INSERT ON `HISTORIC_REQUESTS`
+CREATE TRIGGER `TRG_AFTER_INSERT_REQUEST` AFTER INSERT ON `HISTORIC_REQUESTS`
 FOR EACH ROW
 BEGIN
-    UPDATE `RELEASES`
-    SET `nRequests` = `nRequests` + 1
-    WHERE `ReleaseName` = NEW.`ReleaseName`;
+     -- Number of Requests automatically matches
+     UPDATE `RELEASES`
+     SET `nRequests` = `nRequests` + 1
+     WHERE `ReleaseId` = NEW.`ReleaseId`;
 END;//
 
-CREATE TRIGGER `TRG_DECREASE_RELEASE_REQUESTS_COUNTER` AFTER DELETE ON `HISTORIC_REQUESTS`
+CREATE TRIGGER `TRG_AFTER_DELETE_REQUEST` AFTER DELETE ON `HISTORIC_REQUESTS`
 FOR EACH ROW
 BEGIN
-    UPDATE `RELEASES`
-    SET `nRequests` = `nRequests` - 1
-    WHERE `ReleaseName` = OLD.`ReleaseName`;
+     -- Number of Requests automatically matches
+     UPDATE `RELEASES`
+     SET `nRequests` = `nRequests` - 1
+     WHERE `ReleaseId` = OLD.`ReleaseId`;
 END;//
 
 -- n REQUIREMENTS
-CREATE TRIGGER `TRG_INCREASE_RELEASE_REQUIREMENTS_COUNTER` AFTER INSERT ON `HISTORIC_REQUIREMENTS`
+CREATE TRIGGER `TRG_AFTER_INSERT_HISTORIC_REQUIREMENT` AFTER INSERT ON `HISTORIC_REQUIREMENTS`
 FOR EACH ROW
 BEGIN
-    UPDATE `RELEASES`
-    SET `nRequirements` = `nRequirements` + 1
-    WHERE `ReleaseName` = NEW.`ReleaseName`;
+     -- Number of Requirements automatically matches
+     UPDATE `RELEASES`
+     SET `nRequirements` = `nRequirements` + 1
+     WHERE `ReleaseId` = NEW.`ReleaseId`;
 END;//
 
-CREATE TRIGGER `TRG_DECREASE_RELEASE_REQUIREMENTS_COUNTER` AFTER DELETE ON `HISTORIC_REQUIREMENTS`
+CREATE TRIGGER `TRG_AFTER_DELETE_HISTORIC_REQUIREMENT` AFTER DELETE ON `HISTORIC_REQUIREMENTS`
 FOR EACH ROW
 BEGIN
-    UPDATE `RELEASES`
-    SET `nRequirements` = `nRequirements` - 1
-    WHERE `ReleaseName` = OLD.`ReleaseName`;
+     -- Number of Requirements automatically matches
+     UPDATE `RELEASES`
+     SET `nRequirements` = `nRequirements` - 1
+     WHERE `ReleaseId` = OLD.`ReleaseId`;
 END;//
 
--- REQUIREMENTS parent avoid recursive reference
-CREATE TRIGGER `TRG_BEFORE_REQUIREMENT_INSERT`
-BEFORE INSERT ON REQUIREMENTS
+CREATE TRIGGER `TRG_BEFORE_INSERT_REQUIREMENT` BEFORE INSERT ON `REQUIREMENTS`
 FOR EACH ROW
 BEGIN
+     -- REQUIREMENTS assert user to create or update to be editor
+    DECLARE userCreationIsEditor CHAR(1);
+    DECLARE userEditingIsEditor CHAR(1);
+    
+    -- Check if UserIdCreation references an editor
+    SELECT `isEditor` INTO userCreationIsEditor
+    FROM `USERS`
+    WHERE `UserId` = NEW.`UserIdCreation`;
+    
+    IF userCreationIsEditor <> 'Y' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'UserIdCreation must reference a user with isEditor = Y';
+    END IF;
+    
+    -- Check if UserIdEditing references an editor
+    SELECT `isEditor` INTO userEditingIsEditor
+    FROM `USERS`
+    WHERE `UserId` = NEW.`UserIdEditing`;
+    
+    IF userEditingIsEditor <> 'Y' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'UserIdEditing must reference a user with isEditor = Y';
+    END IF;
+
+     -- REQUIREMENTS parent avoid recursive reference
     IF NEW.`RequirementId` = NEW.`ParentRequirementId` THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: A requirement cannot be its own parent.';
+        SET MESSAGE_TEXT = 'RequirementId illegal, a requirement cannot be its own parent.';
     END IF;
 END;//
 
-CREATE TRIGGER `TRG_BEFORE_REQUIREMENT_UPDATE`
-BEFORE UPDATE ON REQUIREMENTS
+CREATE TRIGGER `TRG_BEFORE_UPDATE_REQUIREMENT` BEFORE UPDATE ON `REQUIREMENTS`
 FOR EACH ROW
 BEGIN
-    IF NEW.`RequirementId` = NEW.`ParentRequirementId` THEN
+     -- REQUIREMENTS assert user to create or update to be editor
+     DECLARE userCreationIsEditor CHAR(1);
+     DECLARE userEditingIsEditor CHAR(1);
+     
+     -- Check if UserIdCreation references an editor
+     SELECT `isEditor` INTO userCreationIsEditor
+     FROM `USERS`
+     WHERE `UserId` = NEW.`UserIdCreation`;
+     
+     IF userCreationIsEditor <> 'Y' THEN
+          SIGNAL SQLSTATE '45000'
+          SET MESSAGE_TEXT = 'UserIdCreation must reference a user with isEditor = Y';
+     END IF;
+     
+     -- Check if UserIdEditing references an editor
+     SELECT `isEditor` INTO userEditingIsEditor
+     FROM `USERS`
+     WHERE `UserId` = NEW.`UserIdEditing`;
+     
+     IF userEditingIsEditor <> 'Y' THEN
+          SIGNAL SQLSTATE '45000'
+          SET MESSAGE_TEXT = 'UserIdEditing must reference a user with isEditor = Y';
+     END IF;
+
+     -- CREATION USER cannot be updated
+     IF OLD.`UserIdCreation` <> NEW.`UserIdCreation` THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: A requirement cannot be its own parent.';
-    END IF;
+        SET MESSAGE_TEXT = 'UserIdCreation cannot be modified after initial insertion.';
+     END IF;
+
+     -- CREATION TIME cannot be updated
+     IF OLD.`timeCreation` <> NEW.`timeCreation` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'timeCreation cannot be modified after initial insertion.';
+     END IF;
+
+     -- REQUIREMENTS parent avoid recursive reference
+     IF NEW.`RequirementId` = NEW.`ParentRequirementId` THEN
+          SIGNAL SQLSTATE '45000'
+          SET MESSAGE_TEXT = 'RequirementId illegal, a requirement cannot be its own parent.';
+     END IF;
+END;//
+
+CREATE TRIGGER `TRG_BEFORE_INSERT_REQUEST` BEFORE INSERT ON `REQUESTS`
+FOR EACH ROW
+BEGIN
+     DECLARE userIsEditor CHAR(1);
+     -- APPROVAL USER must be an editor
+     IF NEW.`UserIdApproval` IS NOT NULL THEN
+          SELECT `isEditor` INTO userIsEditor
+          FROM `USERS`
+          WHERE `UserId` = NEW.`UserIdApproval`;
+          
+          IF userIsEditor <> 'Y' THEN
+               SIGNAL SQLSTATE '45000'
+               SET MESSAGE_TEXT = 'UserIdApproval must reference a user with isEditor = Y';
+          END IF;
+     END IF;
+END;//
+
+CREATE TRIGGER `TRG_BEFORE_UPDATE_REQUEST` BEFORE UPDATE ON `REQUESTS`
+FOR EACH ROW
+BEGIN
+     DECLARE userIsEditor CHAR(1);
+     -- APPROVAL USER must be an editor
+     IF NEW.`UserIdApproval` IS NOT NULL THEN
+          SELECT `isEditor` INTO userIsEditor
+          FROM `USERS`
+          WHERE `UserId` = NEW.`UserIdApproval`;
+          
+          IF userIsEditor <> 'Y' THEN
+               SIGNAL SQLSTATE '45000'
+               SET MESSAGE_TEXT = 'UserIdApproval must reference a user with isEditor = Y';
+          END IF;
+     END IF;
+
+     -- CREATION USER cannot be updated
+     IF OLD.`UserIdCreation` <> NEW.`UserIdCreation` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'UserIdCreation cannot be modified after initial insertion.';
+     END IF;
+
+     -- CREATION TIME cannot be updated
+     IF OLD.`timeCreation` <> NEW.`timeCreation` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'timeCreation cannot be modified after initial insertion.';
+     END IF;
+END;//
+
+CREATE TRIGGER `TRG_BEFORE_UPDATE_RELEASE` BEFORE UPDATE ON `RELEASES`
+FOR EACH ROW
+BEGIN
+     -- CREATION USER cannot be updated
+     IF OLD.`UserIdCreation` <> NEW.`UserIdCreation` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'UserIdCreation cannot be modified after initial insertion.';
+     END IF;
+
+     -- CREATION TIME cannot be updated
+     IF OLD.`timeCreation` <> NEW.`timeCreation` THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'timeCreation cannot be modified after initial insertion.';
+     END IF;
 END;//
 
 delimiter ;

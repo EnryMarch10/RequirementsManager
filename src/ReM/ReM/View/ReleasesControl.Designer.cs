@@ -32,7 +32,8 @@ partial class ReleasesControl
         buttonUpdate = new Button();
         dataGridViewReleases = new DataGridView();
         buttonDelete = new Button();
-        ColumnReleaseName = new DataGridViewTextBoxColumn();
+        ColumnReleaseId = new DataGridViewTextBoxColumn();
+        ColumnName = new DataGridViewTextBoxColumn();
         ColumnDescription = new DataGridViewTextBoxColumn();
         ColumnTimeCreation = new DataGridViewTextBoxColumn();
         ColumnNumRequests = new DataGridViewTextBoxColumn();
@@ -72,7 +73,7 @@ partial class ReleasesControl
         dataGridViewReleases.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         dataGridViewReleases.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         dataGridViewReleases.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dataGridViewReleases.Columns.AddRange(new DataGridViewColumn[] { ColumnReleaseName, ColumnDescription, ColumnTimeCreation, ColumnNumRequests, ColumnNumRequirements, ColumnUserIdCreation });
+        dataGridViewReleases.Columns.AddRange(new DataGridViewColumn[] { ColumnReleaseId, ColumnName, ColumnDescription, ColumnTimeCreation, ColumnNumRequests, ColumnNumRequirements, ColumnUserIdCreation });
         dataGridViewReleases.Location = new Point(0, 0);
         dataGridViewReleases.MultiSelect = false;
         dataGridViewReleases.Name = "dataGridViewReleases";
@@ -91,11 +92,19 @@ partial class ReleasesControl
         buttonDelete.UseVisualStyleBackColor = true;
         buttonDelete.Click += ButtonDelete_Click;
         // 
-        // ColumnReleaseName
+        // ColumnReleaseId
         // 
-        ColumnReleaseName.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-        ColumnReleaseName.HeaderText = "ReleaseName";
-        ColumnReleaseName.Name = "ColumnReleaseName";
+        ColumnReleaseId.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnReleaseId.HeaderText = "ReleaseId";
+        ColumnReleaseId.Name = "ColumnReleaseId";
+        ColumnReleaseId.ReadOnly = true;
+        ColumnReleaseId.Width = 81;
+        // 
+        // ColumnName
+        // 
+        ColumnName.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        ColumnName.HeaderText = "Name";
+        ColumnName.Name = "ColumnName";
         // 
         // ColumnDescription
         // 
@@ -156,7 +165,8 @@ partial class ReleasesControl
     private Button buttonUpdate;
     private DataGridView dataGridViewReleases;
     private Button buttonDelete;
-    private DataGridViewTextBoxColumn ColumnReleaseName;
+    private DataGridViewTextBoxColumn ColumnReleaseId;
+    private DataGridViewTextBoxColumn ColumnName;
     private DataGridViewTextBoxColumn ColumnDescription;
     private DataGridViewTextBoxColumn ColumnTimeCreation;
     private DataGridViewTextBoxColumn ColumnNumRequests;

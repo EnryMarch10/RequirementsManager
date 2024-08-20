@@ -43,7 +43,9 @@ public partial class RemContext : DbContext
 
             entity.HasIndex(e => e.UserIdEditing, "FK_HISTORIC_EDITING_REQUEST");
 
-            entity.HasIndex(e => e.ReleaseName, "FK_RELEASE_REQUESTS");
+            entity.HasIndex(e => e.UserIdApproval, "FK_HISTORIC_APPROVAL_REQUEST");
+
+            entity.HasIndex(e => e.ReleaseId, "FK_RELEASE_REQUESTS");
 
             entity.Property(e => e.Body)
                 .HasColumnType("mediumblob")
@@ -57,7 +59,6 @@ public partial class RemContext : DbContext
                 .HasDefaultValueSql("'N'")
                 .IsFixedLength()
                 .HasColumnName("isActive");
-            entity.Property(e => e.ReleaseName).HasMaxLength(50);
             entity.Property(e => e.TimeApproval)
                 .HasColumnType("datetime")
                 .HasColumnName("timeApproval");
@@ -71,8 +72,8 @@ public partial class RemContext : DbContext
                 .HasColumnType("enum('bug','functionality')")
                 .HasColumnName("type");
 
-            entity.HasOne(d => d.ReleaseNameNavigation).WithMany(p => p.HistoricRequests)
-                .HasForeignKey(d => d.ReleaseName)
+            entity.HasOne(d => d.Release).WithMany(p => p.HistoricRequests)
+                .HasForeignKey(d => d.ReleaseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RELEASE_REQUESTS");
 
@@ -81,10 +82,15 @@ public partial class RemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ORIGINAL_REQUEST");
 
-            entity.HasOne(d => d.UserIdEditingNavigation).WithMany(p => p.HistoricRequests)
+            entity.HasOne(d => d.UserIdEditingNavigation).WithMany(p => p.HistoricRequestUserIdEditingNavigations)
                 .HasForeignKey(d => d.UserIdEditing)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HISTORIC_EDITING_REQUEST");
+
+            entity.HasOne(d => d.UserIdApprovalNavigation).WithMany(p => p.HistoricRequestUserIdApprovalNavigations)
+                .HasForeignKey(d => d.UserIdApproval)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HISTORIC_APPROVAL_REQUEST");
         });
 
         modelBuilder.Entity<HistoricRequirement>(entity =>
@@ -99,7 +105,7 @@ public partial class RemContext : DbContext
 
             entity.HasIndex(e => new { e.ParentRequirementId, e.ParentRequirementVersion }, "FK_HISTORIC_KINSHIP");
 
-            entity.HasIndex(e => e.ReleaseName, "FK_RELEASE_REQUIREMENTS");
+            entity.HasIndex(e => e.ReleaseId, "FK_RELEASE_REQUIREMENTS");
 
             entity.Property(e => e.Body)
                 .HasColumnType("mediumblob")
@@ -114,7 +120,6 @@ public partial class RemContext : DbContext
                 .HasDefaultValueSql("'N'")
                 .IsFixedLength()
                 .HasColumnName("isActive");
-            entity.Property(e => e.ReleaseName).HasMaxLength(50);
             entity.Property(e => e.TakenHours).HasColumnName("takenHours");
             entity.Property(e => e.TimeEditing)
                 .HasColumnType("datetime")
@@ -126,8 +131,8 @@ public partial class RemContext : DbContext
                 .HasColumnType("enum('functional','non-functional')")
                 .HasColumnName("type");
 
-            entity.HasOne(d => d.ReleaseNameNavigation).WithMany(p => p.HistoricRequirements)
-                .HasForeignKey(d => d.ReleaseName)
+            entity.HasOne(d => d.Release).WithMany(p => p.HistoricRequirements)
+                .HasForeignKey(d => d.ReleaseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RELEASE_REQUIREMENTS");
 
@@ -153,19 +158,23 @@ public partial class RemContext : DbContext
 
         modelBuilder.Entity<Release>(entity =>
         {
-            entity.HasKey(e => e.ReleaseName).HasName("PRIMARY");
+            entity.HasKey(e => e.ReleaseId).HasName("PRIMARY");
 
             entity.ToTable("releases");
 
             entity.HasIndex(e => e.UserIdCreation, "FK_CREATION_RELEASE");
 
-            entity.Property(e => e.ReleaseName).HasMaxLength(50);
+            entity.HasIndex(e => e.Name, "UniqueName").IsUnique();
+
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
                 .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.NRequests).HasColumnName("nRequests");
             entity.Property(e => e.NRequirements).HasColumnName("nRequirements");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
             entity.Property(e => e.TimeCreation)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
@@ -198,7 +207,7 @@ public partial class RemContext : DbContext
                 .HasColumnName("description");
             entity.Property(e => e.IsActive)
                 .HasMaxLength(1)
-                .HasDefaultValueSql("'N'")
+                .HasDefaultValueSql("'Y'")
                 .IsFixedLength()
                 .HasColumnName("isActive");
             entity.Property(e => e.TimeApproval)
@@ -257,7 +266,7 @@ public partial class RemContext : DbContext
             entity.Property(e => e.EstimatedHours).HasColumnName("estimatedHours");
             entity.Property(e => e.IsActive)
                 .HasMaxLength(1)
-                .HasDefaultValueSql("'N'")
+                .HasDefaultValueSql("'Y'")
                 .IsFixedLength()
                 .HasColumnName("isActive");
             entity.Property(e => e.ProgressPercentage).HasColumnName("progressPercentage");

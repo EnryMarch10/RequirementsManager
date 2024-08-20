@@ -34,7 +34,7 @@ public partial class HistoricRequirement
 
     public uint? ParentRequirementVersion { get; set; }
 
-    public string ReleaseName { get; set; } = null!;
+    public uint ReleaseId { get; set; }
 
     public virtual HistoricRequest HistoricRequest { get; set; } = null!;
 
@@ -42,7 +42,7 @@ public partial class HistoricRequirement
 
     public virtual ICollection<HistoricRequirement> InverseHistoricRequirementNavigation { get; set; } = new List<HistoricRequirement>();
 
-    public virtual Release ReleaseNameNavigation { get; set; } = null!;
+    public virtual Release Release { get; set; } = null!;
 
     public virtual Requirement Requirement { get; set; } = null!;
 

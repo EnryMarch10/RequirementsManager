@@ -4,7 +4,9 @@ namespace ReM.Models;
 
 public partial class Release
 {
-    public string ReleaseName { get; set; } = null!;
+    public uint ReleaseId { get; set; }
+
+    public string Name { get; set; } = null!;
 
     public string Description { get; set; } = null!;
 
@@ -25,12 +27,12 @@ public partial class Release
     public override bool Equals(object? obj)
     {
         return obj is Release release &&
-               ReleaseName == release.ReleaseName;
+               ReleaseId == release.ReleaseId;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(ReleaseName);
+        return HashCode.Combine(ReleaseId);
     }
 
     public override string ToString()
