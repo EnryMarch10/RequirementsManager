@@ -50,6 +50,7 @@ public partial class RemContext : DbContext
                 .HasColumnName("body");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
+                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.IsActive)
                 .HasMaxLength(1)
@@ -105,6 +106,7 @@ public partial class RemContext : DbContext
                 .HasColumnName("body");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
+                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.EstimatedHours).HasColumnName("estimatedHours");
             entity.Property(e => e.IsActive)
@@ -160,6 +162,7 @@ public partial class RemContext : DbContext
             entity.Property(e => e.ReleaseName).HasMaxLength(50);
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
+                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.NRequests).HasColumnName("nRequests");
             entity.Property(e => e.NRequirements).HasColumnName("nRequirements");
@@ -191,6 +194,7 @@ public partial class RemContext : DbContext
                 .HasColumnName("body");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
+                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.IsActive)
                 .HasMaxLength(1)
@@ -248,6 +252,7 @@ public partial class RemContext : DbContext
                 .HasColumnName("body");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
+                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.EstimatedHours).HasColumnName("estimatedHours");
             entity.Property(e => e.IsActive)

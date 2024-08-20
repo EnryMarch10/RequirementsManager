@@ -17,5 +17,9 @@ public partial class MainForm : Form
             {
                 Dock = DockStyle.Fill
             });
+        tabPageRequirements.Controls.Add(new RequirementsControl()
+        {
+            Dock = DockStyle.Fill
+        });
     }
 }

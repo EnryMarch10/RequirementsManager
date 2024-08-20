@@ -1,6 +1,6 @@
 namespace ReM.View;
 
-public partial class RequestsControl
+public partial class RequirementsControl
 {
     /// <summary> 
     /// Required designer variable.
@@ -31,8 +31,8 @@ public partial class RequestsControl
         buttonDelete = new Button();
         buttonRefresh = new Button();
         buttonUpdate = new Button();
-        dataGridViewRequests = new DataGridView();
-        ColumnRequestId = new DataGridViewTextBoxColumn();
+        dataGridViewRequirements = new DataGridView();
+        ColumnRequirementId = new DataGridViewTextBoxColumn();
         ColumnTitle = new DataGridViewTextBoxColumn();
         ColumnDescription = new DataGridViewTextBoxColumn();
         ColumnBody = new DataGridViewTextBoxColumn();
@@ -42,9 +42,12 @@ public partial class RequestsControl
         ColumnTimeCreation = new DataGridViewTextBoxColumn();
         ColumnUserIdEditing = new DataGridViewTextBoxColumn();
         ColumnTimeEditing = new DataGridViewTextBoxColumn();
-        ColumnUserIdApproval = new DataGridViewTextBoxColumn();
-        ColumnTimeApproval = new DataGridViewTextBoxColumn();
-        ((System.ComponentModel.ISupportInitialize)dataGridViewRequests).BeginInit();
+        ColumnProgressPercentage = new DataGridViewTextBoxColumn();
+        ColumnEstimatedHours = new DataGridViewTextBoxColumn();
+        ColumnTakenHours = new DataGridViewTextBoxColumn();
+        ColumnRequestId = new DataGridViewTextBoxColumn();
+        ColumnParentRequirementId = new DataGridViewTextBoxColumn();
+        ((System.ComponentModel.ISupportInitialize)dataGridViewRequirements).BeginInit();
         SuspendLayout();
         // 
         // buttonDelete
@@ -80,30 +83,30 @@ public partial class RequestsControl
         buttonUpdate.UseVisualStyleBackColor = true;
         buttonUpdate.Click += ButtonUpdate_Click;
         // 
-        // dataGridViewRequests
+        // dataGridViewRequirements
         // 
-        dataGridViewRequests.AllowUserToDeleteRows = false;
-        dataGridViewRequests.AllowUserToOrderColumns = true;
-        dataGridViewRequests.AllowUserToResizeColumns = false;
-        dataGridViewRequests.AllowUserToResizeRows = false;
-        dataGridViewRequests.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        dataGridViewRequests.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-        dataGridViewRequests.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dataGridViewRequests.Columns.AddRange(new DataGridViewColumn[] { ColumnRequestId, ColumnTitle, ColumnDescription, ColumnBody, ColumnType, ColumnIsActive, ColumnUserIdCreation, ColumnTimeCreation, ColumnUserIdEditing, ColumnTimeEditing, ColumnUserIdApproval, ColumnTimeApproval });
-        dataGridViewRequests.Location = new Point(0, 0);
-        dataGridViewRequests.MultiSelect = false;
-        dataGridViewRequests.Name = "dataGridViewRequests";
-        dataGridViewRequests.Size = new Size(900, 468);
-        dataGridViewRequests.TabIndex = 7;
-        dataGridViewRequests.CellValueChanged += DataGridViewRequests_CellValueChanged;
+        dataGridViewRequirements.AllowUserToDeleteRows = false;
+        dataGridViewRequirements.AllowUserToOrderColumns = true;
+        dataGridViewRequirements.AllowUserToResizeColumns = false;
+        dataGridViewRequirements.AllowUserToResizeRows = false;
+        dataGridViewRequirements.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        dataGridViewRequirements.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+        dataGridViewRequirements.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dataGridViewRequirements.Columns.AddRange(new DataGridViewColumn[] { ColumnRequirementId, ColumnTitle, ColumnDescription, ColumnBody, ColumnType, ColumnIsActive, ColumnUserIdCreation, ColumnTimeCreation, ColumnUserIdEditing, ColumnTimeEditing, ColumnProgressPercentage, ColumnEstimatedHours, ColumnTakenHours, ColumnRequestId, ColumnParentRequirementId });
+        dataGridViewRequirements.Location = new Point(0, 0);
+        dataGridViewRequirements.MultiSelect = false;
+        dataGridViewRequirements.Name = "dataGridViewRequirements";
+        dataGridViewRequirements.Size = new Size(900, 468);
+        dataGridViewRequirements.TabIndex = 7;
+        dataGridViewRequirements.CellValueChanged += DataGridViewRequests_CellValueChanged;
         // 
-        // ColumnRequestId
+        // ColumnRequirementId
         // 
-        ColumnRequestId.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        ColumnRequestId.HeaderText = "RequestId";
-        ColumnRequestId.Name = "ColumnRequestId";
-        ColumnRequestId.ReadOnly = true;
-        ColumnRequestId.Width = 84;
+        ColumnRequirementId.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnRequirementId.HeaderText = "RequirementId";
+        ColumnRequirementId.Name = "ColumnRequirementId";
+        ColumnRequirementId.ReadOnly = true;
+        ColumnRequirementId.Width = 110;
         // 
         // ColumnTitle
         // 
@@ -171,33 +174,53 @@ public partial class RequestsControl
         ColumnTimeEditing.ReadOnly = true;
         ColumnTimeEditing.Width = 95;
         // 
-        // ColumnUserIdApproval
+        // ColumnProgressPercentage
         // 
-        ColumnUserIdApproval.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        ColumnUserIdApproval.HeaderText = "UserIdApproval";
-        ColumnUserIdApproval.Name = "ColumnUserIdApproval";
-        ColumnUserIdApproval.Width = 113;
+        ColumnProgressPercentage.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnProgressPercentage.HeaderText = "ProgressPercentage";
+        ColumnProgressPercentage.Name = "ColumnProgressPercentage";
+        ColumnProgressPercentage.Width = 136;
         // 
-        // ColumnTimeApproval
+        // ColumnEstimatedHours
         // 
-        ColumnTimeApproval.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        ColumnTimeApproval.HeaderText = "TimeApproval";
-        ColumnTimeApproval.Name = "ColumnTimeApproval";
-        ColumnTimeApproval.ReadOnly = true;
-        ColumnTimeApproval.Width = 106;
+        ColumnEstimatedHours.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnEstimatedHours.HeaderText = "EstimatedHours";
+        ColumnEstimatedHours.Name = "ColumnEstimatedHours";
+        ColumnEstimatedHours.Width = 116;
         // 
-        // RequestsControl
+        // ColumnTakenHours
+        // 
+        ColumnTakenHours.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnTakenHours.HeaderText = "TakenHours";
+        ColumnTakenHours.Name = "ColumnTakenHours";
+        ColumnTakenHours.Width = 94;
+        // 
+        // ColumnRequestId
+        // 
+        ColumnRequestId.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnRequestId.HeaderText = "RequestId";
+        ColumnRequestId.Name = "ColumnRequestId";
+        ColumnRequestId.Width = 84;
+        // 
+        // ColumnParentRequirementId
+        // 
+        ColumnParentRequirementId.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        ColumnParentRequirementId.HeaderText = "ParentRequirementId";
+        ColumnParentRequirementId.Name = "ColumnParentRequirementId";
+        ColumnParentRequirementId.Width = 144;
+        // 
+        // RequirementsControl
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(buttonDelete);
         Controls.Add(buttonRefresh);
         Controls.Add(buttonUpdate);
-        Controls.Add(dataGridViewRequests);
-        Name = "RequestsControl";
+        Controls.Add(dataGridViewRequirements);
+        Name = "RequirementsControl";
         Size = new Size(900, 500);
         Load += Requests_Load;
-        ((System.ComponentModel.ISupportInitialize)dataGridViewRequests).EndInit();
+        ((System.ComponentModel.ISupportInitialize)dataGridViewRequirements).EndInit();
         ResumeLayout(false);
     }
 
@@ -206,8 +229,8 @@ public partial class RequestsControl
     private Button buttonDelete;
     private Button buttonRefresh;
     private Button buttonUpdate;
-    private DataGridView dataGridViewRequests;
-    private DataGridViewTextBoxColumn ColumnRequestId;
+    private DataGridView dataGridViewRequirements;
+    private DataGridViewTextBoxColumn ColumnRequirementId;
     private DataGridViewTextBoxColumn ColumnTitle;
     private DataGridViewTextBoxColumn ColumnDescription;
     private DataGridViewTextBoxColumn ColumnBody;
@@ -217,6 +240,9 @@ public partial class RequestsControl
     private DataGridViewTextBoxColumn ColumnTimeCreation;
     private DataGridViewTextBoxColumn ColumnUserIdEditing;
     private DataGridViewTextBoxColumn ColumnTimeEditing;
-    private DataGridViewTextBoxColumn ColumnUserIdApproval;
-    private DataGridViewTextBoxColumn ColumnTimeApproval;
+    private DataGridViewTextBoxColumn ColumnProgressPercentage;
+    private DataGridViewTextBoxColumn ColumnEstimatedHours;
+    private DataGridViewTextBoxColumn ColumnTakenHours;
+    private DataGridViewTextBoxColumn ColumnRequestId;
+    private DataGridViewTextBoxColumn ColumnParentRequirementId;
 }

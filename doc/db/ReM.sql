@@ -30,41 +30,45 @@ CREATE TABLE `USERS` (
      `isEditor` CHAR(1) NOT NULL DEFAULT 'N',
      PRIMARY KEY (`UserId`),
      CHECK (`isEditor` IN ('Y', 'N')),
-     CONSTRAINT `UNIQUE_USERNAME`
+     CONSTRAINT `UNIQUE_USER_USERNAME`
           UNIQUE KEY `UniqueUsername` (`username`),
-     CONSTRAINT `UNIQUE_EMAIL`
+     CONSTRAINT `UNIQUE_USER_EMAIL`
           UNIQUE KEY `UniqueEmail` (`email`),
-     CHECK (`email` <> ''
-          AND `email` NOT LIKE ' %'
-          AND `email` NOT LIKE '% '),
-     CHECK (`name` <> ''
-          AND `name` NOT LIKE ' %'
-          AND `name` NOT LIKE '% '),
-     CHECK (`surname` <> ''
-          AND `surname` NOT LIKE ' %'
-          AND `surname` NOT LIKE '% ')
+     CONSTRAINT `CHK_USER_EMAIL_NOT_EMPTY`
+          CHECK (`email` <> ''
+               AND `email` NOT LIKE ' %'
+               AND `email` NOT LIKE '% '),
+     CONSTRAINT `CHK_USER_NAME_NOT_EMPTY`
+          CHECK (`name` <> ''
+               AND `name` NOT LIKE ' %'
+               AND `name` NOT LIKE '% '),
+     CONSTRAINT `CHK_USER_SURNAME_NOT_EMPTY`
+          CHECK (`surname` <> ''
+               AND `surname` NOT LIKE ' %'
+               AND `surname` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `RELEASES` (
      `ReleaseName` VARCHAR(50) NOT NULL,
-     `description` VARCHAR(300) NOT NULL,
+     `description` VARCHAR(300) NOT NULL DEFAULT '',
      `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `nRequests` INT UNSIGNED NOT NULL DEFAULT 0,
      `nRequirements` INT UNSIGNED NOT NULL DEFAULT 0,
      `UserIdCreation` INT UNSIGNED NOT NULL,
      PRIMARY KEY (`ReleaseName`),
-     CHECK (`ReleaseName` <> ''
-          AND `ReleaseName` NOT LIKE ' %'
-          AND `ReleaseName` NOT LIKE '% ')
+     CONSTRAINT `CHK_RELEASE_NAME_NOT_EMPTY`
+          CHECK (`ReleaseName` <> ''
+               AND `ReleaseName` NOT LIKE ' %'
+               AND `ReleaseName` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `REQUESTS` (
      `RequestId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
      `title` VARCHAR(50) NOT NULL,
-     `description` VARCHAR(300) NOT NULL,
+     `description` VARCHAR(300) NOT NULL DEFAULT '',
      `body` MEDIUMBLOB,
      `type` ENUM('bug', 'functionality') NOT NULL,
-     `isActive` CHAR(1) NOT NULL DEFAULT 'N',
+     `isActive` CHAR(1) NOT NULL DEFAULT 'Y',
      `UserIdCreation` INT UNSIGNED NOT NULL,
      `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `UserIdEditing` INT UNSIGNED NOT NULL,
@@ -72,22 +76,24 @@ CREATE TABLE `REQUESTS` (
      `UserIdApproval` INT UNSIGNED,
      `timeApproval` DATETIME,
      PRIMARY KEY (`RequestId`),
-     CHECK (`isActive` IN ('Y', 'N')),
-     CONSTRAINT `CHK_APPROVAL`
+     CONSTRAINT `CHK_REQUEST_IS_ACTIVE_VALID`
+          CHECK (`isActive` IN ('Y', 'N')),
+     CONSTRAINT `CHK_REQUEST_APPROVAL_LEGAL`
           CHECK((`UserIdApproval` IS NOT NULL AND `timeApproval` IS NOT NULL)
                OR (`UserIdApproval` IS NULL AND `timeApproval` IS NULL)),
-     CHECK (`title` <> ''
-          AND `title` NOT LIKE ' %'
-          AND `title` NOT LIKE '% ')
+     CONSTRAINT `CHK_REQUEST_TITLE_NOT_EMPTY`
+          CHECK (`title` <> ''
+               AND `title` NOT LIKE ' %'
+               AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `REQUIREMENTS` (
      `RequirementId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
      `title` VARCHAR(50) NOT NULL,
-     `description` VARCHAR(300) NOT NULL,
+     `description` VARCHAR(300) NOT NULL DEFAULT '',
      `body` MEDIUMBLOB,
      `type` ENUM('functional', 'non-functional') NOT NULL,
-     `isActive` CHAR(1) NOT NULL DEFAULT 'N',
+     `isActive` CHAR(1) NOT NULL DEFAULT 'Y',
      `UserIdCreation` INT UNSIGNED NOT NULL,
      `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `UserIdEditing` INT UNSIGNED NOT NULL,
@@ -98,19 +104,23 @@ CREATE TABLE `REQUIREMENTS` (
      `RequestId` INT UNSIGNED NOT NULL,
      `ParentRequirementId` INT UNSIGNED,
      PRIMARY KEY (`RequirementId`),
-     CHECK (`isActive` IN ('Y', 'N')),
-     CHECK (`estimatedHours` >= 0),
-     CHECK (`takenHours` >= 0),
-     CHECK (`title` <> ''
-          AND `title` NOT LIKE ' %'
-          AND `title` NOT LIKE '% ')
+     CONSTRAINT `CHK_REQUIREMENT_IS_ACTIVE_VALID`
+          CHECK (`isActive` IN ('Y', 'N')),
+     CONSTRAINT `CHK_REQUIREMENT_ESTIMATED_HOURS_POSITIVE`
+          CHECK (`estimatedHours` >= 0),
+     CONSTRAINT `CHK_REQUIREMENT_TAKEN_HOURS_POSITIVE`
+          CHECK (`takenHours` >= 0),
+     CONSTRAINT `CHK_REQUIREMENT_TITLE_NOT_EMPTY`
+          CHECK (`title` <> ''
+               AND `title` NOT LIKE ' %'
+               AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `HISTORIC_REQUESTS` (
      `RequestId` INT UNSIGNED NOT NULL,
      `RequestVersion` INT UNSIGNED NOT NULL,
      `title` VARCHAR(50) NOT NULL,
-     `description` VARCHAR(300) NOT NULL,
+     `description` VARCHAR(300) NOT NULL DEFAULT '',
      `body` MEDIUMBLOB,
      `type` ENUM('bug', 'functionality') NOT NULL,
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
@@ -119,17 +129,19 @@ CREATE TABLE `HISTORIC_REQUESTS` (
      `timeApproval` DATETIME NOT NULL,
      `ReleaseName` VARCHAR(50) NOT NULL,
      PRIMARY KEY (`RequestId`, `RequestVersion`),
-     CHECK (`isActive` IN ('Y', 'N')),
-     CHECK (`title` <> ''
-          AND `title` NOT LIKE ' %'
-          AND `title` NOT LIKE '% ')
+     CONSTRAINT `CHK_H_REQUEST_IS_ACTIVE_VALID`
+          CHECK (`isActive` IN ('Y', 'N')),
+     CONSTRAINT `CHK_H_REQUEST_TITLE_NOT_EMPTY`
+          CHECK (`title` <> ''
+               AND `title` NOT LIKE ' %'
+               AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 CREATE TABLE `HISTORIC_REQUIREMENTS` (
      `RequirementId` INT UNSIGNED NOT NULL,
      `RequirementVersion` INT UNSIGNED NOT NULL,
      `title` VARCHAR(50) NOT NULL,
-     `description` VARCHAR(300) NOT NULL,
+     `description` VARCHAR(300) NOT NULL DEFAULT '',
      `body` MEDIUMBLOB,
      `type` ENUM('functional', 'non-functional') NOT NULL,
      `isActive` CHAR(1) NOT NULL DEFAULT 'N',
@@ -143,15 +155,19 @@ CREATE TABLE `HISTORIC_REQUIREMENTS` (
      `ParentRequirementVersion` INT UNSIGNED,
      `ReleaseName` VARCHAR(50) NOT NULL,
      PRIMARY KEY (`RequirementId`, `RequirementVersion`),
-     CHECK (`isActive` IN ('Y', 'N')),
-     CONSTRAINT `CHK_HISTORIC_KINSHIP`
+     CONSTRAINT `CHK_H_REQUIREMENT_IS_ACTIVE_VALID`
+          CHECK (`isActive` IN ('Y', 'N')),
+     CONSTRAINT `CHK_H_REQUIREMENT_KINSHIP_LEGAL`
           CHECK((`ParentRequirementId` IS NOT NULL AND `ParentRequirementVersion` IS NOT NULL)
                OR (`ParentRequirementId` IS NULL AND `ParentRequirementVersion` IS NULL)),
-     CHECK (`estimatedHours` >= 0),
-     CHECK (`takenHours` >= 0),
-     CHECK (`title` <> ''
-          AND `title` NOT LIKE ' %'
-          AND `title` NOT LIKE '% ')
+     CONSTRAINT `CHK_H_REQUIREMENT_ESTIMATED_HOURS_POSITIVE`
+          CHECK (`estimatedHours` >= 0),
+     CONSTRAINT `CHK_H_REQUIREMENT_TAKEN_HOURS_POSITIVE`
+          CHECK (`takenHours` >= 0),
+     CONSTRAINT `CHK_H_REQUIREMENT_TITLE_NOT_EMPTY`
+          CHECK (`title` <> ''
+               AND `title` NOT LIKE ' %'
+               AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
 -- Constraints Section

@@ -3,19 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ReM.View;
 
-public partial class RequestsControl : UserControl
+public partial class RequirementsControl : UserControl
 {
-    private EntityControl<Request> _entityControl = null!;
+    private EntityControl<Requirement> _entityControl = null!;
     private DateTime time;
 
-    public RequestsControl()
+    public RequirementsControl()
     {
         InitializeComponent();
     }
 
     private void Requests_Load(object sender, EventArgs e)
     {
-        _entityControl = new EntityControl<Request>(dataGridViewRequests)
+        _entityControl = new EntityControl<Requirement>(dataGridViewRequirements)
         {
             DataGridViewAddHandler = DataGridView_Add,
             DataGridViewChangeValueHandler = DataGridViewChangeValue,
@@ -28,19 +28,19 @@ public partial class RequestsControl : UserControl
 
     private void DataViewUpdate()
     {
-        Request[] requests;
+        Requirement[] requirements;
         using (RemContext context = new())
         {
-            context.Requests.Load();
-            requests = [.. context.Requests.Local];
+            context.Requirements.Load();
+            requirements = [.. context.Requirements.Local];
         }
-        _entityControl.DataGridViewUpdate(requests);
+        _entityControl.DataGridViewUpdate(requirements);
     }
 
-    protected void DataGridView_Add(DataGridViewRow row, Request item)
+    protected void DataGridView_Add(DataGridViewRow row, Requirement item)
     {
-        row.CreateCells(dataGridViewRequests,
-            item.RequestId,
+        row.CreateCells(dataGridViewRequirements,
+            item.RequirementId,
             item.Title,
             item.Description,
             item.Body is not null ? "DATA" : null,
@@ -50,11 +50,14 @@ public partial class RequestsControl : UserControl
             item.TimeCreation,
             item.UserIdEditing,
             item.TimeEditing,
-            item.UserIdApproval,
-            item.TimeApproval);
+            item.ProgressPercentage,
+            item.EstimatedHours,
+            item.TakenHours,
+            item.RequestId,
+            item.ParentRequirementId);
     }
 
-    private static bool DataGridViewChangeValue(DataGridView dataGridView, Request item, int row, int column)
+    private static bool DataGridViewChangeValue(DataGridView dataGridView, Requirement item, int row, int column)
     {
         var value = dataGridView[column, row].Value;
         var result = string.Empty;
@@ -90,13 +93,25 @@ public partial class RequestsControl : UserControl
         {
             item.TimeEditing = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
         }
-        else if (column == dataGridView.Columns["ColumnUserIdApproval"].Index)
+        else if (column == dataGridView.Columns["ColumnProgressPercentage"].Index)
         {
-            item.UserIdApproval = uint.TryParse(result, out uint index) ? index : 0;
+            item.ProgressPercentage = uint.TryParse(result, out uint index) ? index : 0;
         }
-        else if (column == dataGridView.Columns["ColumnTimeApproval"].Index)
+        else if (column == dataGridView.Columns["ColumnEstimatedHours"].Index)
         {
-            item.TimeApproval = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
+            item.EstimatedHours = float.TryParse(result, out float index) ? index : 0.0f;
+        }
+        else if (column == dataGridView.Columns["ColumnTakenHours"].Index)
+        {
+            item.TakenHours = float.TryParse(result, out float index) ? index : 0.0f;
+        }
+        else if (column == dataGridView.Columns["ColumnRequestId"].Index)
+        {
+            item.RequestId = uint.TryParse(result, out uint index) ? index : 0;
+        }
+        else if (column == dataGridView.Columns["ColumnParentRequirementId"].Index)
+        {
+            item.ParentRequirementId = uint.TryParse(result, out uint index) ? index : null;
         }
         else
         {
@@ -110,14 +125,12 @@ public partial class RequestsControl : UserControl
     {
         time = DateTime.Now;
     }
-    private void BeforeAdding(Request item)
+    private void BeforeAdding(Requirement item)
     {
-        item.TimeApproval = item.UserIdApproval is not null ? time : null;
         item.TimeEditing = time;
     }
-    private void BeforeUpdating(Request item)
+    private void BeforeUpdating(Requirement item)
     {
-        item.TimeApproval = item.UserIdApproval is not null ? time : null;
         item.TimeEditing = time;
     }
 
