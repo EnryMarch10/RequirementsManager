@@ -1,6 +1,6 @@
 namespace ReM.View;
 
-public partial class RequirementsControl
+partial class RequirementsControl
 {
     /// <summary> 
     /// Required designer variable.
@@ -219,7 +219,7 @@ public partial class RequirementsControl
         Controls.Add(dataGridViewRequirements);
         Name = "RequirementsControl";
         Size = new Size(900, 500);
-        Load += Requests_Load;
+        Load += Requirements_Load;
         ((System.ComponentModel.ISupportInitialize)dataGridViewRequirements).EndInit();
         ResumeLayout(false);
     }

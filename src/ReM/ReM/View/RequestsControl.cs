@@ -2,7 +2,6 @@ using ReM.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ReM.View;
-
 public partial class RequestsControl : UserControl
 {
     private EntityControl<Request> _entityControl = null!;
@@ -23,10 +22,10 @@ public partial class RequestsControl : UserControl
             DataGridViewBeforeUpdatingHandler = BeforeUpdating,
             DataGridViewBeforeAddingAndUpdatingHandler = BeforeAddingAndUpdating
         };
-        DataViewUpdate();
+        DataGridViewUpdate();
     }
 
-    private void DataViewUpdate()
+    private void DataGridViewUpdate()
     {
         Request[] requests;
         using (RemContext context = new())
@@ -37,24 +36,24 @@ public partial class RequestsControl : UserControl
         _entityControl.DataGridViewUpdate(requests);
     }
 
-    protected void DataGridView_Add(DataGridViewRow row, Request item)
+    private void DataGridView_Add(DataGridViewRow row, Request request)
     {
         row.CreateCells(dataGridViewRequests,
-            item.RequestId,
-            item.Title,
-            item.Description,
-            item.Body is not null ? "DATA" : null,
-            item.Type,
-            item.IsActive,
-            item.UserIdCreation,
-            item.TimeCreation,
-            item.UserIdEditing,
-            item.TimeEditing,
-            item.UserIdApproval,
-            item.TimeApproval);
+            request.RequestId,
+            request.Title,
+            request.Description,
+            request.Body is not null ? "DATA" : null,
+            request.Type,
+            request.IsActive,
+            request.UserIdCreation,
+            request.TimeCreation,
+            request.UserIdEditing,
+            request.TimeEditing,
+            request.UserIdApproval,
+            request.TimeApproval);
     }
 
-    private static bool DataGridViewChangeValue(DataGridView dataGridView, Request item, int row, int column)
+    private static bool DataGridViewChangeValue(DataGridView dataGridView, Request request, int row, int column)
     {
         var value = dataGridView[column, row].Value;
         var result = string.Empty;
@@ -64,39 +63,39 @@ public partial class RequestsControl : UserControl
         }
         if (column == dataGridView.Columns["ColumnTitle"].Index)
         {
-            item.Title = result;
+            request.Title = result;
         }
         else if (column == dataGridView.Columns["ColumnDescription"].Index)
         {
-            item.Description = result;
+            request.Description = result;
         }
         else if (column == dataGridView.Columns["ColumnType"].Index)
         {
-            item.Type = result;
+            request.Type = result;
         }
         else if (column == dataGridView.Columns["ColumnIsActive"].Index)
         {
-            item.IsActive = result;
+            request.IsActive = result;
         }
         else if (column == dataGridView.Columns["ColumnUserIdCreation"].Index)
         {
-            item.UserIdCreation = uint.TryParse(result, out uint index) ? index : 0;
+            request.UserIdCreation = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnUserIdEditing"].Index)
         {
-            item.UserIdEditing = uint.TryParse(result, out uint index) ? index : 0;
+            request.UserIdEditing = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnTimeEditing"].Index)
         {
-            item.TimeEditing = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
+            request.TimeEditing = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
         }
         else if (column == dataGridView.Columns["ColumnUserIdApproval"].Index)
         {
-            item.UserIdApproval = uint.TryParse(result, out uint index) ? index : 0;
+            request.UserIdApproval = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnTimeApproval"].Index)
         {
-            item.TimeApproval = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
+            request.TimeApproval = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
         }
         else
         {
@@ -110,20 +109,20 @@ public partial class RequestsControl : UserControl
     {
         time = DateTime.Now;
     }
-    private void BeforeAdding(Request item)
+    private void BeforeAdding(Request request)
     {
-        item.TimeApproval = item.UserIdApproval is not null ? time : null;
-        item.TimeEditing = time;
+        request.TimeApproval = request.UserIdApproval is not null ? time : null;
+        request.TimeEditing = time;
     }
-    private void BeforeUpdating(Request item)
+    private void BeforeUpdating(Request request)
     {
-        item.TimeApproval = item.UserIdApproval is not null ? time : null;
-        item.TimeEditing = time;
+        request.TimeApproval = request.UserIdApproval is not null ? time : null;
+        request.TimeEditing = time;
     }
 
     private void ButtonRefresh_Click(object sender, EventArgs e)
     {
-        DataViewUpdate();
+        DataGridViewUpdate();
     }
 
     private void DataGridViewRequests_CellValueChanged(object sender, DataGridViewCellEventArgs e)

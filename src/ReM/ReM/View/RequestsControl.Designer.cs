@@ -1,6 +1,6 @@
 namespace ReM.View;
 
-public partial class RequestsControl
+partial class RequestsControl
 {
     /// <summary> 
     /// Required designer variable.

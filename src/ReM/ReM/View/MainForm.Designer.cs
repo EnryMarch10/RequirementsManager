@@ -32,6 +32,7 @@ partial class MainForm
         tabPageUsers = new TabPage();
         tabPageRequests = new TabPage();
         tabPageRequirements = new TabPage();
+        tabPageReleases = new TabPage();
         tabCtrlMain.SuspendLayout();
         SuspendLayout();
         // 
@@ -40,6 +41,7 @@ partial class MainForm
         tabCtrlMain.Controls.Add(tabPageUsers);
         tabCtrlMain.Controls.Add(tabPageRequests);
         tabCtrlMain.Controls.Add(tabPageRequirements);
+        tabCtrlMain.Controls.Add(tabPageReleases);
         tabCtrlMain.Dock = DockStyle.Fill;
         tabCtrlMain.Location = new Point(0, 0);
         tabCtrlMain.Name = "tabCtrlMain";
@@ -62,7 +64,7 @@ partial class MainForm
         tabPageRequests.Location = new Point(4, 24);
         tabPageRequests.Name = "tabPageRequests";
         tabPageRequests.Padding = new Padding(3);
-        tabPageRequests.Size = new Size(792, 398);
+        tabPageRequests.Size = new Size(792, 422);
         tabPageRequests.TabIndex = 1;
         tabPageRequests.Text = "Requests";
         tabPageRequests.UseVisualStyleBackColor = true;
@@ -72,10 +74,20 @@ partial class MainForm
         tabPageRequirements.Location = new Point(4, 24);
         tabPageRequirements.Name = "tabPageRequirements";
         tabPageRequirements.Padding = new Padding(3);
-        tabPageRequirements.Size = new Size(792, 398);
+        tabPageRequirements.Size = new Size(792, 422);
         tabPageRequirements.TabIndex = 2;
         tabPageRequirements.Text = "Requirements";
         tabPageRequirements.UseVisualStyleBackColor = true;
+        // 
+        // tabPageReleases
+        // 
+        tabPageReleases.Location = new Point(4, 24);
+        tabPageReleases.Name = "tabPageReleases";
+        tabPageReleases.Padding = new Padding(3);
+        tabPageReleases.Size = new Size(792, 422);
+        tabPageReleases.TabIndex = 3;
+        tabPageReleases.Text = "Releases";
+        tabPageReleases.UseVisualStyleBackColor = true;
         // 
         // MainForm
         // 
@@ -96,4 +108,5 @@ partial class MainForm
     private TabPage tabPageUsers;
     private TabPage tabPageRequests;
     private TabPage tabPageRequirements;
+    private TabPage tabPageReleases;
 }

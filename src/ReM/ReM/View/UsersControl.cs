@@ -1,8 +1,7 @@
-using ReM.Models;
 using Microsoft.EntityFrameworkCore;
+using ReM.Models;
 
 namespace ReM.View;
-
 public partial class UsersControl : UserControl
 {
     private EntityControl<User> _entityControl = null!;
@@ -46,7 +45,7 @@ public partial class UsersControl : UserControl
             user.IsEditor);
     }
 
-    private static bool DataGridViewChangeValue(DataGridView dataGridView, User item, int row, int column)
+    private static bool DataGridViewChangeValue(DataGridView dataGridView, User user, int row, int column)
     {
         var value = dataGridView[column, row].Value;
         var result = string.Empty;
@@ -57,31 +56,31 @@ public partial class UsersControl : UserControl
 
         if (column == dataGridView.Columns["ColumnUsername"].Index)
         {
-            item.Username = result;
+            user.Username = result;
         }
         else if (column == dataGridView.Columns["ColumnName"].Index)
         {
-            item.Name = result;
+            user.Name = result;
         }
         else if (column == dataGridView.Columns["ColumnSurname"].Index)
         {
-            item.Surname = result;
+            user.Surname = result;
         }
         else if (column == dataGridView.Columns["ColumnEmail"].Index)
         {
-            item.Email = result;
+            user.Email = result;
         }
         else if (column == dataGridView.Columns["ColumnPhone"].Index)
         {
-            item.Phone = result;
+            user.Phone = result;
         }
         else if (column == dataGridView.Columns["ColumnCompany"].Index)
         {
-            item.Company = result;
+            user.Company = result;
         }
         else if (column == dataGridView.Columns["ColumnIsEditor"].Index)
         {
-            item.IsEditor = result;
+            user.IsEditor = result;
         }
         else
         {

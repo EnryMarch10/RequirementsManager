@@ -21,5 +21,9 @@ public partial class MainForm : Form
         {
             Dock = DockStyle.Fill
         });
+        tabPageReleases.Controls.Add(new ReleasesControl()
+        {
+            Dock = DockStyle.Fill
+        });
     }
 }

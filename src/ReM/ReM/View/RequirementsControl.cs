@@ -1,8 +1,7 @@
-using ReM.Models;
 using Microsoft.EntityFrameworkCore;
+using ReM.Models;
 
 namespace ReM.View;
-
 public partial class RequirementsControl : UserControl
 {
     private EntityControl<Requirement> _entityControl = null!;
@@ -13,20 +12,20 @@ public partial class RequirementsControl : UserControl
         InitializeComponent();
     }
 
-    private void Requests_Load(object sender, EventArgs e)
+    private void Requirements_Load(object sender, EventArgs e)
     {
         _entityControl = new EntityControl<Requirement>(dataGridViewRequirements)
         {
-            DataGridViewAddHandler = DataGridView_Add,
+            DataGridViewAddHandler = DataGridViewAdd,
             DataGridViewChangeValueHandler = DataGridViewChangeValue,
             DataGridViewBeforeAddingHandler = BeforeAdding,
             DataGridViewBeforeUpdatingHandler = BeforeUpdating,
             DataGridViewBeforeAddingAndUpdatingHandler = BeforeAddingAndUpdating
         };
-        DataViewUpdate();
+        DataGridViewUpdate();
     }
 
-    private void DataViewUpdate()
+    private void DataGridViewUpdate()
     {
         Requirement[] requirements;
         using (RemContext context = new())
@@ -37,27 +36,27 @@ public partial class RequirementsControl : UserControl
         _entityControl.DataGridViewUpdate(requirements);
     }
 
-    protected void DataGridView_Add(DataGridViewRow row, Requirement item)
+    private void DataGridViewAdd(DataGridViewRow row, Requirement requirement)
     {
         row.CreateCells(dataGridViewRequirements,
-            item.RequirementId,
-            item.Title,
-            item.Description,
-            item.Body is not null ? "DATA" : null,
-            item.Type,
-            item.IsActive,
-            item.UserIdCreation,
-            item.TimeCreation,
-            item.UserIdEditing,
-            item.TimeEditing,
-            item.ProgressPercentage,
-            item.EstimatedHours,
-            item.TakenHours,
-            item.RequestId,
-            item.ParentRequirementId);
+            requirement.RequirementId,
+            requirement.Title,
+            requirement.Description,
+            requirement.Body is not null ? "DATA" : null,
+            requirement.Type,
+            requirement.IsActive,
+            requirement.UserIdCreation,
+            requirement.TimeCreation,
+            requirement.UserIdEditing,
+            requirement.TimeEditing,
+            requirement.ProgressPercentage,
+            requirement.EstimatedHours,
+            requirement.TakenHours,
+            requirement.RequestId,
+            requirement.ParentRequirementId);
     }
 
-    private static bool DataGridViewChangeValue(DataGridView dataGridView, Requirement item, int row, int column)
+    private static bool DataGridViewChangeValue(DataGridView dataGridView, Requirement requirement, int row, int column)
     {
         var value = dataGridView[column, row].Value;
         var result = string.Empty;
@@ -67,51 +66,51 @@ public partial class RequirementsControl : UserControl
         }
         if (column == dataGridView.Columns["ColumnTitle"].Index)
         {
-            item.Title = result;
+            requirement.Title = result;
         }
         else if (column == dataGridView.Columns["ColumnDescription"].Index)
         {
-            item.Description = result;
+            requirement.Description = result;
         }
         else if (column == dataGridView.Columns["ColumnType"].Index)
         {
-            item.Type = result;
+            requirement.Type = result;
         }
         else if (column == dataGridView.Columns["ColumnIsActive"].Index)
         {
-            item.IsActive = result;
+            requirement.IsActive = result;
         }
         else if (column == dataGridView.Columns["ColumnUserIdCreation"].Index)
         {
-            item.UserIdCreation = uint.TryParse(result, out uint index) ? index : 0;
+            requirement.UserIdCreation = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnUserIdEditing"].Index)
         {
-            item.UserIdEditing = uint.TryParse(result, out uint index) ? index : 0;
+            requirement.UserIdEditing = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnTimeEditing"].Index)
         {
-            item.TimeEditing = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
+            requirement.TimeEditing = DateTime.TryParse(result, out DateTime date) ? date : DateTime.Now;
         }
         else if (column == dataGridView.Columns["ColumnProgressPercentage"].Index)
         {
-            item.ProgressPercentage = uint.TryParse(result, out uint index) ? index : 0;
+            requirement.ProgressPercentage = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnEstimatedHours"].Index)
         {
-            item.EstimatedHours = float.TryParse(result, out float index) ? index : 0.0f;
+            requirement.EstimatedHours = float.TryParse(result, out float index) ? index : 0.0f;
         }
         else if (column == dataGridView.Columns["ColumnTakenHours"].Index)
         {
-            item.TakenHours = float.TryParse(result, out float index) ? index : 0.0f;
+            requirement.TakenHours = float.TryParse(result, out float index) ? index : 0.0f;
         }
         else if (column == dataGridView.Columns["ColumnRequestId"].Index)
         {
-            item.RequestId = uint.TryParse(result, out uint index) ? index : 0;
+            requirement.RequestId = uint.TryParse(result, out uint index) ? index : 0;
         }
         else if (column == dataGridView.Columns["ColumnParentRequirementId"].Index)
         {
-            item.ParentRequirementId = uint.TryParse(result, out uint index) ? index : null;
+            requirement.ParentRequirementId = uint.TryParse(result, out uint index) ? index : null;
         }
         else
         {
@@ -125,18 +124,18 @@ public partial class RequirementsControl : UserControl
     {
         time = DateTime.Now;
     }
-    private void BeforeAdding(Requirement item)
+    private void BeforeAdding(Requirement requirement)
     {
-        item.TimeEditing = time;
+        requirement.TimeEditing = time;
     }
-    private void BeforeUpdating(Requirement item)
+    private void BeforeUpdating(Requirement requirement)
     {
-        item.TimeEditing = time;
+        requirement.TimeEditing = time;
     }
 
     private void ButtonRefresh_Click(object sender, EventArgs e)
     {
-        DataViewUpdate();
+        DataGridViewUpdate();
     }
 
     private void DataGridViewRequests_CellValueChanged(object sender, DataGridViewCellEventArgs e)
