@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ReM.View;
 
-public partial class Users : UserControl
+public partial class UsersControl : UserControl
 {
     private List<User> _users = [];
 
-    public Users()
+    public UsersControl()
     {
         InitializeComponent();
     }
@@ -43,7 +43,7 @@ public partial class Users : UserControl
             ListSortDirection.Ascending : ListSortDirection.Descending;
         dataGridViewUsers.Rows.Clear();
 
-        foreach (User user in users)
+        foreach (var user in users)
         {
             DataGridView_Add(user);
         }
@@ -69,16 +69,38 @@ public partial class Users : UserControl
         {
             result = value.ToString() ?? string.Empty;
         }
-        switch (column)
+
+        if (column == dataGridViewUsers.Columns["ColumnUsername"].Index)
         {
-            case 1: user.Username = result; break;
-            case 2: user.Name = result; break;
-            case 3: user.Surname = result; break;
-            case 4: user.Email = result; break;
-            case 5: user.Phone = result; break;
-            case 6: user.Company = result; break;
-            case 7: user.IsEditor = result; break;
-            default: return false;
+            user.Username = result;
+        }
+        else if (column == dataGridViewUsers.Columns["ColumnName"].Index)
+        {
+            user.Name = result;
+        }
+        else if (column == dataGridViewUsers.Columns["ColumnSurname"].Index)
+        {
+            user.Surname = result;
+        }
+        else if (column == dataGridViewUsers.Columns["ColumnEmail"].Index)
+        {
+            user.Email = result;
+        }
+        else if (column == dataGridViewUsers.Columns["ColumnPhone"].Index)
+        {
+            user.Phone = result;
+        }
+        else if (column == dataGridViewUsers.Columns["ColumnCompany"].Index)
+        {
+            user.Company = result;
+        }
+        else if (column == dataGridViewUsers.Columns["ColumnIsEditor"].Index)
+        {
+            user.IsEditor = result;
+        }
+        else
+        {
+            return false;
         }
         return true;
     }
@@ -114,10 +136,11 @@ public partial class Users : UserControl
             var nUpdates = context.SaveChanges();
             Debug.WriteLine($"Saved {nUpdates} changes");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            MessageBox.Show("Error occurred when updating users, try to refresh data.",
-                    "User insertion",
+            var cause = ex.InnerException is null ? "UNKNOWN" : ex.InnerException.Message;
+            MessageBox.Show($"Error occurred when updating users, try to refresh data.\nMessage: `{cause}`",
+                    "Users update",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
         }
@@ -145,9 +168,10 @@ public partial class Users : UserControl
                     dataGridViewUsers.Rows.RemoveAt(selectedRows[0].Index);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("Error occurred when removing user, try to refresh data.",
+                var cause = ex.InnerException is null ? "UNKNOWN" : ex.InnerException.Message;
+                MessageBox.Show($"Error occurred when removing user, try to refresh data.\nMessage: `{cause}`",
                         "User removal",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);

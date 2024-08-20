@@ -9,10 +9,13 @@ public partial class MainForm : Form
 
     private void MainForm_Load(object sender, EventArgs e)
     {
-        Users myUserControl = new()
-        {
-            Dock = DockStyle.Fill
-        };
-        tabPageUsers.Controls.Add(myUserControl);
+        tabPageUsers.Controls.Add(new UsersControl()
+            {
+                Dock = DockStyle.Fill
+            });
+        tabPageRequests.Controls.Add(new RequestsControl()
+            {
+                Dock = DockStyle.Fill
+            });
     }
 }

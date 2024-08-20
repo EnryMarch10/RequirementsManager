@@ -1,6 +1,6 @@
 namespace ReM.View;
 
-partial class Users
+partial class UsersControl
 {
     /// <summary> 
     /// Required designer variable.
@@ -46,7 +46,7 @@ partial class Users
         // buttonRefresh
         // 
         buttonRefresh.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-        buttonRefresh.Location = new Point(3, 489);
+        buttonRefresh.Location = new Point(3, 474);
         buttonRefresh.Name = "buttonRefresh";
         buttonRefresh.Size = new Size(75, 23);
         buttonRefresh.TabIndex = 5;
@@ -57,7 +57,7 @@ partial class Users
         // buttonUpdate
         // 
         buttonUpdate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-        buttonUpdate.Location = new Point(825, 489);
+        buttonUpdate.Location = new Point(822, 474);
         buttonUpdate.Name = "buttonUpdate";
         buttonUpdate.Size = new Size(75, 23);
         buttonUpdate.TabIndex = 4;
@@ -78,7 +78,7 @@ partial class Users
         dataGridViewUsers.Location = new Point(0, 0);
         dataGridViewUsers.MultiSelect = false;
         dataGridViewUsers.Name = "dataGridViewUsers";
-        dataGridViewUsers.Size = new Size(903, 483);
+        dataGridViewUsers.Size = new Size(900, 468);
         dataGridViewUsers.TabIndex = 3;
         dataGridViewUsers.CellValueChanged += DataGridViewUsers_CellValueChanged;
         // 
@@ -142,7 +142,7 @@ partial class Users
         // buttonDelete
         // 
         buttonDelete.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-        buttonDelete.Location = new Point(744, 489);
+        buttonDelete.Location = new Point(741, 474);
         buttonDelete.Name = "buttonDelete";
         buttonDelete.Size = new Size(75, 23);
         buttonDelete.TabIndex = 6;
@@ -150,7 +150,7 @@ partial class Users
         buttonDelete.UseVisualStyleBackColor = true;
         buttonDelete.Click += ButtonDelete_Click;
         // 
-        // Users
+        // UsersControl
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
@@ -158,8 +158,8 @@ partial class Users
         Controls.Add(buttonRefresh);
         Controls.Add(buttonUpdate);
         Controls.Add(dataGridViewUsers);
-        Name = "Users";
-        Size = new Size(903, 515);
+        Name = "UsersControl";
+        Size = new Size(900, 500);
         Load += Users_Load;
         ((System.ComponentModel.ISupportInitialize)dataGridViewUsers).EndInit();
         ResumeLayout(false);
