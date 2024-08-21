@@ -34,7 +34,7 @@
 
 \definecolor{mysql_comment_green}{rgb}{0.0, 0.5, 0.0}
 \definecolor{mysql_keyword_blue}{RGB}{70, 110, 182}
-\definecolor{mysql_identifier_chestnut}{RGB}{149, 69, 53}
+\definecolor{mysql_identifier_chocolate}{RGB}{123, 63, 0}
 \definecolor{mysql_function_amber}{RGB}{255, 191, 0}
 
 \lstdefinelanguage{MySQL}{
@@ -44,7 +44,7 @@
         BETWEEN, LIKE, IS, NULL, PRIMARY, KEY, FOREIGN, REFERENCES, CONSTRAINT, DATABASE, USE, IF, ELSE,
         END, BEGIN, TRANSACTION, COMMIT, ROLLBACK, GRANT, REVOKE, UNION, ALL, EXCEPT, INTERSECT,
         WITH, PROCEDURE, FUNCTION, TRIGGER, CURSOR, DECLARE, FETCH, OPEN, CLOSE, DEALLOCATE, VARCHAR, INT,
-        AUTO_INCREMENT, ENGINE, CHARSET, DEFAULT, TEXT, DATETIME, TIMESTAMP, RECURSIVE
+        AUTO_INCREMENT, ENGINE, CHARSET, DEFAULT, TEXT, DATETIME, TIMESTAMP, RECURSIVE, SET
     },
     morekeywords=[2]{
         MAX, MIN, COALESCE, COUNT, SUM, AVG, LENGTH, UPPER, LOWER, CONCAT, NOW
@@ -56,12 +56,13 @@
     morestring=[b]",
     commentstyle=\color{mysql_comment_green}\ttfamily,
     keywordstyle=\color{mysql_keyword_blue}\bfseries,
-    keywordstyle=[2]\color{mysql_function_amber}\bfseries,
-    stringstyle=\color{red}\ttfamily,
+    keywordstyle=[2]\color{mysql_function_amber},
+    literate={?}{{\textcolor{red}{?}}}1,
+    stringstyle=\color{gray}\ttfamily,
     identifierstyle=\color{black},
     basewidth={0.5em,0.5em},
     morestring=[b]`,
-    stringstyle=\color{mysql_identifier_chestnut}
+    stringstyle=\color{mysql_identifier_chocolate}
 }
 
 \lstset{
@@ -278,7 +279,7 @@ The mainly requested actions are:
     \item Create a release;
     \item Show requirements and requests relative to a specific release;
     \item View single requirement history (every change for each release);
-    \item Obtain an average of the progress time for completing a branch of the requirements tree;
+    \item Obtain an average of the progress time relative to a branch of the requirements tree;
 \end{enumerate}
 
 \addcontentsline{toc}{section}{Conceptual design}
@@ -432,7 +433,7 @@ Operations and frequency are described in \autoref{tab:op_fr}.
         \hline
         13 & \hyperref[subsubsec:op13]{View single requirement history (every change for each release)} & 10 every day \\
         \hline
-        14 & \hyperref[subsubsec:op14]{Obtain an average of the progress time for completing a branch of the requirements tree} & 20 every day \\
+        14 & \hyperref[subsubsec:op14]{Obtain an average of the progress time relative to a branch of the requirements tree} & 20 every day \\
         \hline
     \end{tblr}
     \caption{\label{tab:op_fr} Operations and frequency}
@@ -738,7 +739,7 @@ Requests and requirements visualization described in \autoref{tab:requirement_hi
     \caption{\label{tab:requirement_history} View single requirement history}
 \end{table}
 
-\subsubsection*{14. Obtain an average of the progress time for completing a branch of the requirements tree}
+\subsubsection*{14. Obtain an average of the progress time relative to a branch of the requirements tree}
 \label{subsubsec:op14}
 
 Requests and requirements visualization described in \autoref{tab:requirement_progress}.
@@ -759,7 +760,7 @@ Requests and requirements visualization described in \autoref{tab:requirement_pr
         Historic\_requirement & E & 0.07 & R \\
         & & Total: 1.14R $\rightarrow$ 22.8 every day & \\
     \end{tblr}
-    \caption{\label{tab:requirement_progress} Obtain an average of the progress time for completing a branch of the requirements tree}
+    \caption{\label{tab:requirement_progress} Obtain an average of the progress time relative to a branch of the requirements tree}
 \end{table}
 
 \addcontentsline{toc}{subsection}{Redundancy analysis}
@@ -846,35 +847,40 @@ description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing, 
 
 In this section the previously described \hyperref[subsec:ops]{operations} are translated into MySQL queries.
 
-First operation query described in \autoref{lst:mysqlquery1}.
+\hyperref[subsubsec:op1]{Subscribe a new user} operation query described in \autoref{lst:mysqlquery1}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 1}, label={lst:mysqlquery1}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op1]{op. 1}}{op. 1}}, label={lst:mysqlquery1}]
     -- UserId was set as AUTO_INCREMENT, so it can be omitted here
-    INSERT INTO `USERS` (`username`, `name`, `surname`, `email`,
-                         `phone`, `company`, `isEditor`)
-    VALUES (?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO `USERS`
+        (`username`, `name`, `surname`,
+         `email`, `phone`, `company`,
+         `isEditor`)
+    VALUES
+        (?, ?, ?, ?, ?, ?, ?);
 \end{lstlisting}
 
-Second operation query described in \autoref{lst:mysqlquery2}.
+\hyperref[subsubsec:op2]{View a request} operation query described in \autoref{lst:mysqlquery2}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 2}, label={lst:mysqlquery2}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op2]{op. 2}}{op. 2}}, label={lst:mysqlquery2}]
     SELECT *
     FROM `REQUESTS`
     WHERE `RequestId` = ?;
 \end{lstlisting}
 
-Third operation query described in \autoref{lst:mysqlquery3}.
+\hyperref[subsubsec:op3]{Create a request} operation query described in \autoref{lst:mysqlquery3}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 3}, label={lst:mysqlquery3}]
-    INSERT INTO `REQUESTS` (`title`, `description`, `type`,
-                            `isActive`, `UserIdCreation`,
-                            `UserIdEditing`, `timeEditing`)
-    VALUES (?, ?, ?, ?, ?, ?, NOW());
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op3]{op. 3}}{op. 3}}, label={lst:mysqlquery3}]
+    INSERT INTO `REQUESTS`
+        (`title`, `description`, `type`,
+         `isActive`, `UserIdCreation`,
+         `UserIdEditing`, `timeEditing`)
+    VALUES
+        (?, ?, ?, ?, ?, ?, NOW());
 \end{lstlisting}
 
-Forth operation query described in \autoref{lst:mysqlquery4}.
+\hyperref[subsubsec:op4]{Update a request} operation query described in \autoref{lst:mysqlquery4}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 4}, label={lst:mysqlquery4}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op4]{op. 4}}{op. 4}}, label={lst:mysqlquery4}]
     UPDATE `REQUESTS`
     SET `title` = ?,
         `description` = ?,
@@ -886,9 +892,9 @@ Forth operation query described in \autoref{lst:mysqlquery4}.
     WHERE `RequestId` = ?;
 \end{lstlisting}
 
-Fifth operation query described in \autoref{lst:mysqlquery5}.
+\hyperref[subsubsec:op5]{Approve a request} operation query described in \autoref{lst:mysqlquery5}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 5}, label={lst:mysqlquery5}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op5]{op. 5}}{op. 5}}, label={lst:mysqlquery5}]
     UPDATE `REQUESTS`
     SET `UserIdApproval` = ?,
         `timeApproval` = NOW(),
@@ -897,27 +903,29 @@ Fifth operation query described in \autoref{lst:mysqlquery5}.
     WHERE `RequestId` = ?;
 \end{lstlisting}
 
-Sixth operation query described in \autoref{lst:mysqlquery6}.
+\hyperref[subsubsec:op6]{View a requirement} operation query described in \autoref{lst:mysqlquery6}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 6}, label={lst:mysqlquery6}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op6]{op. 6}}{op. 6}}, label={lst:mysqlquery6}]
     SELECT *
     FROM `REQUIREMENTS`
     WHERE `RequirementId` = ?;
 \end{lstlisting}
 
-Seventh operation query described in \autoref{lst:mysqlquery8}.
+\hyperref[subsubsec:op7]{Create a requirement} operation query described in \autoref{lst:mysqlquery8}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 7}, label={lst:mysqlquery7}]
-    INSERT INTO `REQUIREMENTS` (`title`, `description`, `type`,
-                                `isActive`, `UserIdCreation`,
-                                `UserIdEditing`, `timeEditing`
-                                `RequestId`, `ParentRequirementId`)
-    VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?);
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op7]{op. 7}}{op. 7}}, label={lst:mysqlquery7}]
+    INSERT INTO `REQUIREMENTS`
+        (`title`, `description`, `type`,
+         `isActive`, `UserIdCreation`,
+         `UserIdEditing`, `timeEditing`
+         `RequestId`, `ParentRequirementId`)
+    VALUES
+        (?, ?, ?, ?, ?, ?, NOW(), ?, ?);
 \end{lstlisting}
 
-Eighth operation query described in \autoref{lst:mysqlquery8}.
+\hyperref[subsubsec:op8]{Update a requirement} operation query described in \autoref{lst:mysqlquery8}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 8}, label={lst:mysqlquery8}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op8]{op. 8}}{op. 8}}, label={lst:mysqlquery8}]
     UPDATE `REQUIREMENTS`
     SET `title` = ?,
         `description` = ?,
@@ -932,9 +940,9 @@ Eighth operation query described in \autoref{lst:mysqlquery8}.
     WHERE `RequestId` = ?;
 \end{lstlisting}
 
-Ninth operation query described in \autoref{lst:mysqlquery9}.
+\hyperref[subsubsec:op9]{Disable a requirement} operation query described in \autoref{lst:mysqlquery9}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 9}, label={lst:mysqlquery9}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op9]{op. 9}}{op. 9}}, label={lst:mysqlquery9}]
     UPDATE `REQUIREMENTS`
     SET `isActive` = ?,
         `UserIdEditing` = ?,
@@ -942,41 +950,65 @@ Ninth operation query described in \autoref{lst:mysqlquery9}.
     WHERE `RequestId` = ?;
 \end{lstlisting}
 
-Tenth operation query described in \autoref{lst:mysqlquery10}.
+\hyperref[subsubsec:op10]{View a release} operation query described in \autoref{lst:mysqlquery10}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 10}, label={lst:mysqlquery10}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op10]{op. 10}}{op. 10}}, label={lst:mysqlquery10}]
     SELECT *
     FROM `RELEASES`
-    WHERE `ReleaseName` = ?;
+    WHERE `ReleaseId` = ?;
 \end{lstlisting}
 
-Eleventh operation query described in \autoref{lst:mysqlquery11}.
+\hyperref[subsubsec:op11]{Create a release} operation query described in \autoref{lst:mysqlquery11}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 11}, label={lst:mysqlquery11}]
-    INSERT INTO `RELEASES` (`ReleaseName`, `description`, `UserIdCreation`)
-    VALUES (?, ?, ?);
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op11]{op. 11}}{op. 11}}, label={lst:mysqlquery11}]
+    INSERT INTO `RELEASES`
+        (`name`, `description`, `UserIdCreation`)
+    VALUES
+        (?, ?, ?);
 \end{lstlisting}
 
-Twelfth operation query described in \autoref{lst:mysqlquery12}.
+\hyperref[subsubsec:op12]{Show requirements and requests relative to a specific release} operation query described in
+\autoref{lst:mysqlquery12}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 12}, label={lst:mysqlquery12}]
-    SELECT `HISTORIC_REQUESTS`.*, `HISTORIC_REQUIREMENTS`.*
-    FROM `RELEASES`, `HISTORIC_REQUESTS`, `HISTORIC_REQUIREMENTS`
-    WHERE `HISTORIC_REQUESTS`.`ReleaseName` = `RELEASES`.`ReleaseName` AND
-          `HISTORIC_REQUIREMENTS`.`ReleaseName` = `RELEASES`.`ReleaseName`
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op12]{op. 12}}{op. 12}}, label={lst:mysqlquery12}]
+    SELECT
+        h_requests.*,
+        h_requirements.*
+    FROM
+        `RELEASES` releases,
+        `HISTORIC_REQUESTS` h_requests,
+        `HISTORIC_REQUIREMENTS` h_requirements
+    WHERE
+        releases.`ReleaseId` = h_requests.`ReleaseId` AND
+        releases.`ReleaseId` = h_requirements.`ReleaseId`;
+    -- is equivalent to
+    SELECT
+        h_requests.*,
+        h_requirements.*
+    FROM
+        `RELEASES` releases,
+    INNER JOIN `HISTORIC_REQUESTS` h_requests
+        ON requests.`ReleaseId` = releases.`ReleaseId`
+    INNER JOIN `HISTORIC_REQUIREMENTS` h_requirements
+        ON h_requirements.`ReleaseId` = h_requirements.`ReleaseId`;
 \end{lstlisting}
 
-Thirteenth operation query described in \autoref{lst:mysqlquery13}.
+\hyperref[subsubsec:op13]{View single requirement history} operation query described in \autoref{lst:mysqlquery13}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 13}, label={lst:mysqlquery13}]
-    SELECT `HISTORIC_REQUIREMENTS`.*
-    FROM `REQUIREMENTS`, `HISTORIC_REQUIREMENTS`
-    WHERE `HISTORIC_REQUIREMENTS`.`RequirementId` = `REQUIREMENTS`.`RequirementId`
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op13]{op. 13}}{op. 13}}, label={lst:mysqlquery13}]
+    SELECT
+        h_requirements.*
+    FROM
+        `REQUIREMENTS` requirements,
+        `HISTORIC_REQUIREMENTS` h_requirements
+    WHERE
+        requirements.`RequirementId` = h_requirements.`RequirementId`
 \end{lstlisting}
 
-Fourteenth operation query described in \autoref{lst:mysqlquery14}.
+\hyperref[subsubsec:op14]{Obtain an average of the progress time relative to a branch of the requirements tree} operation
+query described in \autoref{lst:mysqlquery14}.
 
-\begin{lstlisting}[language=MySQL, caption={op. 14}, label={lst:mysqlquery14}]
+\begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op14]{op. 14}}{op. 14}}, label={lst:mysqlquery14}]
     -- Common Table Expressions are supported from MySQL 8
     WITH RECURSIVE `RequirementTree` AS (
         -- Anchor member: Select the starting node (i.e. the root of the branch)
