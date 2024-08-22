@@ -28,13 +28,53 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
-        tabCtrlMain = new TabControl();
-        tabPageUsers = new TabPage();
-        tabPageRequests = new TabPage();
-        tabPageRequirements = new TabPage();
         tabPageReleases = new TabPage();
+        tabPageRequirements = new TabPage();
+        tabPageRequests = new TabPage();
+        tabPageUsers = new TabPage();
+        tabCtrlMain = new TabControl();
         tabCtrlMain.SuspendLayout();
         SuspendLayout();
+        // 
+        // tabPageReleases
+        // 
+        tabPageReleases.Location = new Point(4, 24);
+        tabPageReleases.Name = "tabPageReleases";
+        tabPageReleases.Padding = new Padding(3);
+        tabPageReleases.Size = new Size(792, 422);
+        tabPageReleases.TabIndex = 3;
+        tabPageReleases.Text = "Releases";
+        tabPageReleases.UseVisualStyleBackColor = true;
+        // 
+        // tabPageRequirements
+        // 
+        tabPageRequirements.Location = new Point(4, 24);
+        tabPageRequirements.Name = "tabPageRequirements";
+        tabPageRequirements.Padding = new Padding(3);
+        tabPageRequirements.Size = new Size(792, 422);
+        tabPageRequirements.TabIndex = 2;
+        tabPageRequirements.Text = "Requirements";
+        tabPageRequirements.UseVisualStyleBackColor = true;
+        // 
+        // tabPageRequests
+        // 
+        tabPageRequests.Location = new Point(4, 24);
+        tabPageRequests.Name = "tabPageRequests";
+        tabPageRequests.Padding = new Padding(3);
+        tabPageRequests.Size = new Size(792, 422);
+        tabPageRequests.TabIndex = 1;
+        tabPageRequests.Text = "Requests";
+        tabPageRequests.UseVisualStyleBackColor = true;
+        // 
+        // tabPageUsers
+        // 
+        tabPageUsers.Location = new Point(4, 24);
+        tabPageUsers.Name = "tabPageUsers";
+        tabPageUsers.Padding = new Padding(3);
+        tabPageUsers.Size = new Size(792, 422);
+        tabPageUsers.TabIndex = 0;
+        tabPageUsers.Text = "Users";
+        tabPageUsers.UseVisualStyleBackColor = true;
         // 
         // tabCtrlMain
         // 
@@ -48,46 +88,6 @@ partial class MainForm
         tabCtrlMain.SelectedIndex = 0;
         tabCtrlMain.Size = new Size(800, 450);
         tabCtrlMain.TabIndex = 0;
-        // 
-        // tabPageUsers
-        // 
-        tabPageUsers.Location = new Point(4, 24);
-        tabPageUsers.Name = "tabPageUsers";
-        tabPageUsers.Padding = new Padding(3);
-        tabPageUsers.Size = new Size(792, 422);
-        tabPageUsers.TabIndex = 0;
-        tabPageUsers.Text = "Users";
-        tabPageUsers.UseVisualStyleBackColor = true;
-        // 
-        // tabPageRequests
-        // 
-        tabPageRequests.Location = new Point(4, 24);
-        tabPageRequests.Name = "tabPageRequests";
-        tabPageRequests.Padding = new Padding(3);
-        tabPageRequests.Size = new Size(792, 422);
-        tabPageRequests.TabIndex = 1;
-        tabPageRequests.Text = "Requests";
-        tabPageRequests.UseVisualStyleBackColor = true;
-        // 
-        // tabPageRequirements
-        // 
-        tabPageRequirements.Location = new Point(4, 24);
-        tabPageRequirements.Name = "tabPageRequirements";
-        tabPageRequirements.Padding = new Padding(3);
-        tabPageRequirements.Size = new Size(792, 422);
-        tabPageRequirements.TabIndex = 2;
-        tabPageRequirements.Text = "Requirements";
-        tabPageRequirements.UseVisualStyleBackColor = true;
-        // 
-        // tabPageReleases
-        // 
-        tabPageReleases.Location = new Point(4, 24);
-        tabPageReleases.Name = "tabPageReleases";
-        tabPageReleases.Padding = new Padding(3);
-        tabPageReleases.Size = new Size(792, 422);
-        tabPageReleases.TabIndex = 3;
-        tabPageReleases.Text = "Releases";
-        tabPageReleases.UseVisualStyleBackColor = true;
         // 
         // MainForm
         // 
@@ -104,9 +104,9 @@ partial class MainForm
 
     #endregion
 
-    private TabControl tabCtrlMain;
-    private TabPage tabPageUsers;
-    private TabPage tabPageRequests;
-    private TabPage tabPageRequirements;
     private TabPage tabPageReleases;
+    private TabPage tabPageRequirements;
+    private TabPage tabPageRequests;
+    private TabPage tabPageUsers;
+    private TabControl tabCtrlMain;
 }

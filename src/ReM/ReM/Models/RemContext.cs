@@ -52,12 +52,9 @@ public partial class RemContext : DbContext
                 .HasColumnName("body");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
-                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.IsActive)
-                .HasMaxLength(1)
-                .HasDefaultValueSql("'N'")
-                .IsFixedLength()
+                .HasColumnType("enum('Y','N')")
                 .HasColumnName("isActive");
             entity.Property(e => e.TimeApproval)
                 .HasColumnType("datetime")
@@ -74,7 +71,6 @@ public partial class RemContext : DbContext
 
             entity.HasOne(d => d.Release).WithMany(p => p.HistoricRequests)
                 .HasForeignKey(d => d.ReleaseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RELEASE_REQUESTS");
 
             entity.HasOne(d => d.Request).WithMany(p => p.HistoricRequests)
@@ -112,13 +108,10 @@ public partial class RemContext : DbContext
                 .HasColumnName("body");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
-                .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.EstimatedHours).HasColumnName("estimatedHours");
             entity.Property(e => e.IsActive)
-                .HasMaxLength(1)
-                .HasDefaultValueSql("'N'")
-                .IsFixedLength()
+                .HasColumnType("enum('Y','N')")
                 .HasColumnName("isActive");
             entity.Property(e => e.TakenHours).HasColumnName("takenHours");
             entity.Property(e => e.TimeEditing)
@@ -133,7 +126,6 @@ public partial class RemContext : DbContext
 
             entity.HasOne(d => d.Release).WithMany(p => p.HistoricRequirements)
                 .HasForeignKey(d => d.ReleaseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RELEASE_REQUIREMENTS");
 
             entity.HasOne(d => d.Requirement).WithMany(p => p.HistoricRequirements)
@@ -206,9 +198,8 @@ public partial class RemContext : DbContext
                 .HasDefaultValueSql("''")
                 .HasColumnName("description");
             entity.Property(e => e.IsActive)
-                .HasMaxLength(1)
                 .HasDefaultValueSql("'Y'")
-                .IsFixedLength()
+                .HasColumnType("enum('Y','N')")
                 .HasColumnName("isActive");
             entity.Property(e => e.TimeApproval)
                 .HasColumnType("datetime")
@@ -265,9 +256,8 @@ public partial class RemContext : DbContext
                 .HasColumnName("description");
             entity.Property(e => e.EstimatedHours).HasColumnName("estimatedHours");
             entity.Property(e => e.IsActive)
-                .HasMaxLength(1)
                 .HasDefaultValueSql("'Y'")
-                .IsFixedLength()
+                .HasColumnType("enum('Y','N')")
                 .HasColumnName("isActive");
             entity.Property(e => e.ProgressPercentage).HasColumnName("progressPercentage");
             entity.Property(e => e.TakenHours).HasColumnName("takenHours");
@@ -322,9 +312,8 @@ public partial class RemContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("email");
             entity.Property(e => e.IsEditor)
-                .HasMaxLength(1)
                 .HasDefaultValueSql("'N'")
-                .IsFixedLength()
+                .HasColumnType("enum('Y','N')")
                 .HasColumnName("isEditor");
             entity.Property(e => e.Name)
                 .HasMaxLength(30)

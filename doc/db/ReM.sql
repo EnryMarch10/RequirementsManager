@@ -27,11 +27,14 @@ CREATE TABLE `USERS` (
     `email` VARCHAR(50) NOT NULL,
     `phone` VARCHAR(20) NOT NULL,
     `company` VARCHAR(30),
-    `isEditor` CHAR(1) NOT NULL DEFAULT 'N',
+    `isEditor` ENUM('Y', 'N') NOT NULL DEFAULT 'N',
     PRIMARY KEY (`UserId`),
-    CHECK (`isEditor` IN ('Y', 'N')),
     CONSTRAINT `UNIQUE_USER_USERNAME`
         UNIQUE KEY `UniqueUsername` (`username`),
+    CONSTRAINT `CHK_USER_USERNAME_NOT_EMPTY`
+        CHECK (`username` <> ''
+            AND `username` NOT LIKE ' %'
+            AND `username` NOT LIKE '% '),
     CONSTRAINT `UNIQUE_USER_EMAIL`
         UNIQUE KEY `UniqueEmail` (`email`),
     CONSTRAINT `CHK_USER_EMAIL_NOT_EMPTY`
@@ -71,7 +74,7 @@ CREATE TABLE `REQUESTS` (
     `description` VARCHAR(300) NOT NULL DEFAULT '',
     `body` MEDIUMBLOB,
     `type` ENUM('bug', 'functionality') NOT NULL,
-    `isActive` CHAR(1) NOT NULL DEFAULT 'Y',
+    `isActive` ENUM('Y', 'N') NOT NULL DEFAULT 'Y',
     `UserIdCreation` INT UNSIGNED NOT NULL,
     `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `UserIdEditing` INT UNSIGNED NOT NULL,
@@ -79,8 +82,6 @@ CREATE TABLE `REQUESTS` (
     `UserIdApproval` INT UNSIGNED,
     `timeApproval` DATETIME,
     PRIMARY KEY (`RequestId`),
-    CONSTRAINT `CHK_REQUEST_IS_ACTIVE_VALID`
-        CHECK (`isActive` IN ('Y', 'N')),
     CONSTRAINT `CHK_REQUEST_APPROVAL_LEGAL`
         CHECK((`UserIdApproval` IS NOT NULL AND `timeApproval` IS NOT NULL)
             OR (`UserIdApproval` IS NULL AND `timeApproval` IS NULL)),
@@ -96,7 +97,7 @@ CREATE TABLE `REQUIREMENTS` (
     `description` VARCHAR(300) NOT NULL DEFAULT '',
     `body` MEDIUMBLOB,
     `type` ENUM('functional', 'non-functional') NOT NULL,
-    `isActive` CHAR(1) NOT NULL DEFAULT 'Y',
+    `isActive` ENUM('Y', 'N') NOT NULL DEFAULT 'Y',
     `UserIdCreation` INT UNSIGNED NOT NULL,
     `timeCreation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `UserIdEditing` INT UNSIGNED NOT NULL,
@@ -109,6 +110,8 @@ CREATE TABLE `REQUIREMENTS` (
     PRIMARY KEY (`RequirementId`),
     CONSTRAINT `CHK_REQUIREMENT_IS_ACTIVE_VALID`
         CHECK (`isActive` IN ('Y', 'N')),
+    CONSTRAINT `CHK_REQUIREMENT_PERCENTAGE_VALID`
+        CHECK (progressPercentage BETWEEN 0 AND 100),
     CONSTRAINT `CHK_REQUIREMENT_ESTIMATED_HOURS_POSITIVE`
         CHECK (`estimatedHours` >= 0),
     CONSTRAINT `CHK_REQUIREMENT_TAKEN_HOURS_POSITIVE`
@@ -119,59 +122,44 @@ CREATE TABLE `REQUIREMENTS` (
             AND `title` NOT LIKE '% ')
 ) ENGINE InnoDB;
 
+-- NO checks on the following tables because they
+-- should always be inserted programmatically and
+-- not by the user
+
 CREATE TABLE `HISTORIC_REQUESTS` (
     `RequestId` INT UNSIGNED NOT NULL,
     `RequestVersion` INT UNSIGNED NOT NULL,
     `title` VARCHAR(50) NOT NULL,
-    `description` VARCHAR(300) NOT NULL DEFAULT '',
+    `description` VARCHAR(300) NOT NULL,
     `body` MEDIUMBLOB,
     `type` ENUM('bug', 'functionality') NOT NULL,
-    `isActive` CHAR(1) NOT NULL DEFAULT 'N',
+    `isActive` ENUM('Y', 'N') NOT NULL,
     `UserIdEditing` INT UNSIGNED NOT NULL,
     `timeEditing` DATETIME NOT NULL,
     `UserIdApproval` INT UNSIGNED NOT NULL,
     `timeApproval` DATETIME NOT NULL,
     `ReleaseId` INT UNSIGNED NOT NULL,
-    PRIMARY KEY (`RequestId`, `RequestVersion`),
-    CONSTRAINT `CHK_H_REQUEST_IS_ACTIVE_VALID`
-        CHECK (`isActive` IN ('Y', 'N')),
-    CONSTRAINT `CHK_H_REQUEST_TITLE_NOT_EMPTY`
-        CHECK (`title` <> ''
-            AND `title` NOT LIKE ' %'
-            AND `title` NOT LIKE '% ')
+    PRIMARY KEY (`RequestId`, `RequestVersion`)
 ) ENGINE InnoDB;
 
 CREATE TABLE `HISTORIC_REQUIREMENTS` (
     `RequirementId` INT UNSIGNED NOT NULL,
     `RequirementVersion` INT UNSIGNED NOT NULL,
     `title` VARCHAR(50) NOT NULL,
-    `description` VARCHAR(300) NOT NULL DEFAULT '',
+    `description` VARCHAR(300) NOT NULL,
     `body` MEDIUMBLOB,
     `type` ENUM('functional', 'non-functional') NOT NULL,
-    `isActive` CHAR(1) NOT NULL DEFAULT 'N',
+    `isActive` ENUM('Y', 'N') NOT NULL,
     `UserIdEditing` INT UNSIGNED NOT NULL,
     `timeEditing` DATETIME NOT NULL,
-    `estimatedHours` FLOAT NOT NULL DEFAULT 0.0,
-    `takenHours` FLOAT NOT NULL DEFAULT 0.0,
+    `estimatedHours` FLOAT NOT NULL,
+    `takenHours` FLOAT NOT NULL,
     `RequestId` INT UNSIGNED NOT NULL,
     `RequestVersion` INT UNSIGNED NOT NULL,
     `ParentRequirementId` INT UNSIGNED,
     `ParentRequirementVersion` INT UNSIGNED,
     `ReleaseId` INT UNSIGNED NOT NULL,
-    PRIMARY KEY (`RequirementId`, `RequirementVersion`),
-    CONSTRAINT `CHK_H_REQUIREMENT_IS_ACTIVE_VALID`
-        CHECK (`isActive` IN ('Y', 'N')),
-    CONSTRAINT `CHK_H_REQUIREMENT_KINSHIP_LEGAL`
-        CHECK((`ParentRequirementId` IS NOT NULL AND `ParentRequirementVersion` IS NOT NULL)
-            OR (`ParentRequirementId` IS NULL AND `ParentRequirementVersion` IS NULL)),
-    CONSTRAINT `CHK_H_REQUIREMENT_ESTIMATED_HOURS_POSITIVE`
-        CHECK (`estimatedHours` >= 0),
-    CONSTRAINT `CHK_H_REQUIREMENT_TAKEN_HOURS_POSITIVE`
-        CHECK (`takenHours` >= 0),
-    CONSTRAINT `CHK_H_REQUIREMENT_TITLE_NOT_EMPTY`
-        CHECK (`title` <> ''
-            AND `title` NOT LIKE ' %'
-            AND `title` NOT LIKE '% ')
+    PRIMARY KEY (`RequirementId`, `RequirementVersion`)
 ) ENGINE InnoDB;
 
 -- Constraints Section
@@ -210,7 +198,8 @@ ALTER TABLE `REQUIREMENTS`
 ALTER TABLE `HISTORIC_REQUESTS`
     ADD CONSTRAINT `FK_RELEASE_REQUESTS`
         FOREIGN KEY (`ReleaseId`)
-        REFERENCES `RELEASES` (`ReleaseId`),
+        REFERENCES `RELEASES` (`ReleaseId`)
+            ON DELETE CASCADE,
     ADD CONSTRAINT `FK_ORIGINAL_REQUEST`
         FOREIGN KEY (`RequestId`)
         REFERENCES `REQUESTS` (`RequestId`),
@@ -224,19 +213,22 @@ ALTER TABLE `HISTORIC_REQUESTS`
 ALTER TABLE `HISTORIC_REQUIREMENTS`
     ADD CONSTRAINT `FK_RELEASE_REQUIREMENTS`
         FOREIGN KEY (`ReleaseId`)
-        REFERENCES `RELEASES` (`ReleaseId`),
+        REFERENCES `RELEASES` (`ReleaseId`)
+            ON DELETE CASCADE,
     ADD CONSTRAINT `FK_ORIGINAL_REQUIREMENT`
         FOREIGN KEY (`RequirementId`)
         REFERENCES `REQUIREMENTS` (`RequirementId`),
     ADD CONSTRAINT `FK_HISTORIC_DEVELOPMENT`
         FOREIGN KEY (`RequestId`, `RequestVersion`)
-        REFERENCES `HISTORIC_REQUESTS` (`RequestId`, `RequestVersion`),
+        REFERENCES `HISTORIC_REQUESTS` (`RequestId`, `RequestVersion`)
+            ON DELETE CASCADE,
     ADD CONSTRAINT `FK_HISTORIC_EDITING_REQUIREMENT`
         FOREIGN KEY (`UserIdEditing`)
         REFERENCES `USERS` (`UserId`),
     ADD CONSTRAINT `FK_HISTORIC_KINSHIP`
         FOREIGN KEY (`ParentRequirementId`, `ParentRequirementVersion`)
-        REFERENCES `HISTORIC_REQUIREMENTS` (`RequirementId`, `RequirementVersion`);
+        REFERENCES `HISTORIC_REQUIREMENTS` (`RequirementId`, `RequirementVersion`)
+            ON DELETE CASCADE;
 
 -- Triggers Section
 -- ________________
@@ -280,14 +272,14 @@ BEGIN
     WHERE `ReleaseId` = NEW.`ReleaseId`;
 END;//
 
-CREATE TRIGGER `TRG_AFTER_DELETE_HISTORIC_REQUEST` AFTER DELETE ON `HISTORIC_REQUESTS`
-FOR EACH ROW
-BEGIN
-    -- Number of Requests automatically matches
-    UPDATE `RELEASES`
-    SET `nRequests` = `nRequests` - 1
-    WHERE `ReleaseId` = OLD.`ReleaseId`;
-END;//
+-- CREATE TRIGGER `TRG_AFTER_DELETE_HISTORIC_REQUEST` AFTER DELETE ON `HISTORIC_REQUESTS`
+-- FOR EACH ROW
+-- BEGIN
+--     -- Number of Requests automatically matches
+--     UPDATE `RELEASES`
+--     SET `nRequests` = `nRequests` - 1
+--     WHERE `ReleaseId` = OLD.`ReleaseId`;
+-- END;//
 
 -- n REQUIREMENTS
 CREATE TRIGGER `TRG_AFTER_INSERT_HISTORIC_REQUIREMENT` AFTER INSERT ON `HISTORIC_REQUIREMENTS`
@@ -299,21 +291,21 @@ BEGIN
     WHERE `ReleaseId` = NEW.`ReleaseId`;
 END;//
 
-CREATE TRIGGER `TRG_AFTER_DELETE_HISTORIC_REQUIREMENT` AFTER DELETE ON `HISTORIC_REQUIREMENTS`
-FOR EACH ROW
-BEGIN
-    -- Number of Requirements automatically matches
-    UPDATE `RELEASES`
-    SET `nRequirements` = `nRequirements` - 1
-    WHERE `ReleaseId` = OLD.`ReleaseId`;
-END;//
+-- CREATE TRIGGER `TRG_AFTER_DELETE_HISTORIC_REQUIREMENT` AFTER DELETE ON `HISTORIC_REQUIREMENTS`
+-- FOR EACH ROW
+-- BEGIN
+--     -- Number of Requirements automatically matches
+--     UPDATE `RELEASES`
+--     SET `nRequirements` = `nRequirements` - 1
+--     WHERE `ReleaseId` = OLD.`ReleaseId`;
+-- END;//
 
 CREATE TRIGGER `TRG_BEFORE_INSERT_REQUIREMENT` BEFORE INSERT ON `REQUIREMENTS`
 FOR EACH ROW
 BEGIN
     -- REQUIREMENTS assert user to create or update to be editor
-    DECLARE userCreationIsEditor CHAR(1);
-    DECLARE userEditingIsEditor CHAR(1);
+    DECLARE userCreationIsEditor ENUM('Y', 'N');
+    DECLARE userEditingIsEditor ENUM('Y', 'N');
     
     -- Check if UserIdCreation references an editor
     SELECT `isEditor` INTO userCreationIsEditor
@@ -346,7 +338,7 @@ CREATE TRIGGER `TRG_BEFORE_UPDATE_REQUIREMENT` BEFORE UPDATE ON `REQUIREMENTS`
 FOR EACH ROW
 BEGIN
     -- EDITING USER must be an editor
-    DECLARE userEditingIsEditor CHAR(1);
+    DECLARE userEditingIsEditor ENUM('Y', 'N');
     SELECT `isEditor` INTO userEditingIsEditor
     FROM `USERS`
     WHERE `UserId` = NEW.`UserIdEditing`;
@@ -376,7 +368,7 @@ CREATE TRIGGER `TRG_BEFORE_INSERT_REQUEST` BEFORE INSERT ON `REQUESTS`
 FOR EACH ROW
 BEGIN
     -- APPROVAL USER must be an editor
-    DECLARE userIsEditor CHAR(1);
+    DECLARE userIsEditor ENUM('Y', 'N');
 
     IF NEW.`UserIdApproval` IS NOT NULL THEN
         SELECT `isEditor` INTO userIsEditor
@@ -394,7 +386,7 @@ CREATE TRIGGER `TRG_BEFORE_UPDATE_REQUEST` BEFORE UPDATE ON `REQUESTS`
 FOR EACH ROW
 BEGIN
     -- APPROVAL USER must be an editor
-    DECLARE userIsEditor CHAR(1);
+    DECLARE userIsEditor ENUM('Y', 'N');
 
     IF NEW.`UserIdApproval` IS NOT NULL THEN
         SELECT `isEditor` INTO userIsEditor
@@ -424,7 +416,7 @@ CREATE TRIGGER `TRG_BEFORE_INSERT_RELEASE` BEFORE INSERT ON `RELEASES`
 FOR EACH ROW
 BEGIN
     -- USER that creates a Release must be an editor
-    DECLARE userCreationIsEditor CHAR(1);
+    DECLARE userCreationIsEditor ENUM('Y', 'N');
     
     SELECT `isEditor` INTO userCreationIsEditor
     FROM `USERS`

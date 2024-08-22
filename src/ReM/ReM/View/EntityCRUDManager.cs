@@ -4,9 +4,13 @@ using ReM.Models;
 
 namespace ReM.View;
 
-public partial class EntityCRUDManager<T> where T : new()
+public partial class EntityCRUDManager<T> where T : notnull, new()
 {
     private readonly DataGridView _dataGridView;
+
+    private readonly HashSet<T> _added = [];
+    private readonly HashSet<T> _updated = [];
+
     public HashSet<T> NewItems { get; } = [];
     public HashSet<T> UpdatedItems { get; } = [];
     public HashSet<T> Items { get; private set; } = [];
@@ -79,6 +83,59 @@ public partial class EntityCRUDManager<T> where T : new()
         }
     }
 
+    // These three fucntions should be called in sequence
+    public void AddDbData(RemContext context)
+    {
+        foreach (var item in NewItems)
+        {
+            var entity = context.Add(item);
+            _added.Add((T)entity.Entity);
+        }
+    }
+    public void UpdateDbData(RemContext context)
+    {
+        foreach (T item in UpdatedItems)
+        {
+            var entity = context.Update(item);
+            _updated.Add((T)entity.Entity);
+        }
+    }
+    public void ReloadSavedDbData()
+    {
+        var add = _added.Count > 0;
+        var update = _updated.Count > 0;
+        if (add)
+        {
+            foreach (var item in NewItems)
+            {
+                Items.Remove(item);
+            }
+            foreach (var item in _added)
+            {
+                Items.Add(item);
+            }
+            NewItems.Clear();
+            _added.Clear();
+        }
+        if (update)
+        {
+            foreach (var item in UpdatedItems)
+            {
+                Items.Remove(item);
+            }
+            foreach (var item in _updated)
+            {
+                Items.Add(item);
+            }
+            UpdatedItems.Clear();
+            _updated.Clear();
+        }
+        if (add || update)
+        {
+            DataGridViewUpdate(Items);
+        }
+    }
+
     public bool AddAndUpdateDbData(bool add = true, bool update = true)
     {
         var result = false;
@@ -98,12 +155,9 @@ public partial class EntityCRUDManager<T> where T : new()
             {
                 foreach (var item in NewItems)
                 {
-                    if (item is not null)
-                    {
-                        DataGridViewBeforeAddingHandler?.Invoke(item);
-                        var entity = context.Add(item);
-                        added.Add((T)entity.Entity);
-                    }
+                    DataGridViewBeforeAddingHandler?.Invoke(item);
+                    var entity = context.Add(item);
+                    added.Add((T)entity.Entity);
                 }
             }
             HashSet<T> updated = [];
@@ -111,12 +165,9 @@ public partial class EntityCRUDManager<T> where T : new()
             {
                 foreach (var item in UpdatedItems)
                 {
-                    if (item is not null)
-                    {
-                        DataGridViewBeforeUpdatingHandler?.Invoke(item);
-                        var entity = context.Update(item);
-                        updated.Add((T)entity.Entity);
-                    }
+                    DataGridViewBeforeUpdatingHandler?.Invoke(item);
+                    var entity = context.Update(item);
+                    updated.Add((T)entity.Entity);
                 }
             }
             var nUpdates = context.SaveChanges();

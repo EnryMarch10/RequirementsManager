@@ -86,44 +86,59 @@ public partial class ReleasesControl : UserControl
     private void ButtonUpdate_Click(object sender, EventArgs e)
     {
         var newItems = _entityControl.NewItems.ToArray();
-        var updatedItems = _entityControl.UpdatedItems.ToArray();
         Request[] requests;
         Requirement[] requirements;
         HistoricRequest[] historicRequests;
-        HistoricRequirement[] historicRequirements;
-        using (RemContext context = new())
+        try
         {
+            RemContext context = new();
             context.Requests.Load();
             context.Requirements.Load();
             context.HistoricRequests.Load();
             context.HistoricRequirements.Load();
-            requests = context.Requests.Local.ToArray();
-            requirements = context.Requirements.Local.ToArray();
-            historicRequests = context.HistoricRequests.Local.ToArray();
-            historicRequirements = context.HistoricRequirements.Local.ToArray();
-        }
-        bool addReleases = true;
-        if (newItems.Length > 0 && requests.Any(request => request.UserIdApproval is null || request.TimeApproval is null))
-        {
-            MessageBox.Show($"Impossible to add Releases if all Requests aren't approved.",
-                        "Releases manager",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-            addReleases = false;
-        }
-        uint count = 1;
-        var randomRequest = historicRequests.FirstOrDefault();
-        if (randomRequest is not null)
-        {
-            count += (uint) historicRequests.Count(req => req.RequestId == randomRequest.RequestId);
-        }
-        if (_entityControl.AddAndUpdateDbData(addReleases) && addReleases)
-        {
-            foreach (var release in newItems)
+            requests = [.. context.Requests.Local];
+            requirements = [.. context.Requirements.Local];
+            historicRequests = [.. context.HistoricRequests.Local];
+            bool addReleases = true;
+            if (newItems.Length > 0 && requests.Any(request => request.UserIdApproval is null || request.TimeApproval is null))
             {
-                try
+                MessageBox.Show($"Impossible to add Releases if all Requests aren't approved.",
+                            "Releases manager",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                addReleases = false;
+            }
+            if (requests.Length != requirements.Select(r => r.RequestId).Distinct().Count())
+            {
+                MessageBox.Show($"Impossible to add Releases if all Requests aren't developed into a requirement.",
+                            "Releases manager",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                addReleases = false;
+            }
+            if (requirements.Any(r => r.ProgressPercentage != 100 ||
+                                      r.EstimatedHours == 0.0 ||
+                                      r.TakenHours == 0.0))
+            {
+                MessageBox.Show($"Impossible to add Releases if all Requirements aren't finished or with valid EstimatedHours or TakenHours.",
+                            "Releases manager",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                addReleases = false;
+            }
+            uint count = 1;
+            var randomRequest = historicRequests.FirstOrDefault();
+            if (randomRequest is not null)
+            {
+                count += (uint) historicRequests.Count(req => req.RequestId == randomRequest.RequestId);
+            }
+            _entityControl.UpdateDbData(context);
+            if (addReleases)
+            {
+                _entityControl.AddDbData(context);
+                context.SaveChanges();
+                foreach (var release in newItems)
                 {
-                    using RemContext context = new();
                     context.HistoricRequests.AddRange(requests.Select(req => new HistoricRequest()
                     {
                         RequestId = req.RequestId,
@@ -135,8 +150,8 @@ public partial class ReleasesControl : UserControl
                         IsActive = req.IsActive,
                         UserIdEditing = req.UserIdEditing,
                         TimeEditing = req.TimeEditing,
-                        UserIdApproval = (uint) req.UserIdApproval,
-                        TimeApproval = (DateTime) req.TimeApproval,
+                        UserIdApproval = (uint)req.UserIdApproval,
+                        TimeApproval = (DateTime)req.TimeApproval,
                         ReleaseId = release.ReleaseId
                     }));
                     context.HistoricRequirements.AddRange(requirements.Select(req => new HistoricRequirement()
@@ -158,17 +173,18 @@ public partial class ReleasesControl : UserControl
                         ParentRequirementVersion = req.ParentRequirementId is null ? null : count,
                         ReleaseId = release.ReleaseId
                     }));
-                    context.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    var cause = ex.InnerException is not null ? ex.InnerException.Message : ex.Message;
-                    MessageBox.Show($"Error occurred while managing historic Requests and Requirements, try to refresh data.\nMessage: `{cause}`",
-                            "Releases manager",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
                 }
             }
+            context.SaveChanges();
+            _entityControl.ReloadSavedDbData();
+        }
+        catch (Exception ex)
+        {
+            var cause = ex.InnerException is not null ? ex.InnerException.Message : ex.Message;
+            MessageBox.Show($"Error occurred when updating Releases, try to refresh data.\nMessage: `{cause}`",
+                    "Releases manager",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
         }
     }
 
