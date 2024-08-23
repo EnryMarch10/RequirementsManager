@@ -20,6 +20,8 @@
 % Avoids URLs to overfull \hbox
 \usepackage{xurl}
 
+\usepackage{pdfpages}
+
 % Normal table
 \colorlet{dark_title_rows}{gray!90}
 \colorlet{light_odd_rows}{gray!15}
@@ -96,6 +98,26 @@
 }
 \date{\today}
 
+% Package to keep track of the total number of pages
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+
+\fancypagestyle{fancy}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\pagestyle{fancy}
+
 \begin{document}
 
 \maketitle
@@ -116,13 +138,9 @@ the \emph{Software Engineering} process of collecting and creating requirements.
 It's requested to realize a database that allows a team to optimize Software's Analysis by managing Requirements creation.
 Each one of them descends from a Request that could be created by a team member or by the project customers.
 
-\addcontentsline{toc}{section}{Preliminary}
-\section*{Preliminary}
-\label{sec:preliminary}
-
-\addcontentsline{toc}{subsection}{Interview}
-\subsection*{Interview}
-\label{subsec:interview}
+\addcontentsline{toc}{section}{Interview}
+\section*{Interview}
+\label{sec:interview}
 
 The aim is to manage requirements during all phases of software production and revision storing away all final and in production
 data relative to releases already published or yet to publish. Everything has to start from a \emph{Request}.
@@ -161,10 +179,36 @@ creation time.
 % There has to be also the possibility to comment (and reply) requests and requirements so as to work in a more interactive and
 % efficient way.
 
+\addcontentsline{toc}{section}{Actions}
+\section*{Actions}
+
+The mainly requested actions are:
+\begin{enumerate}
+    \item Subscribe a new user;
+    \item View a request;
+    \item Create a request;
+    \item Update a request;
+    \item Approve a request;
+    \item View a requirement;
+    \item Create a requirement;
+    \item Update a requirement;
+    \item Disable a requirement;
+    \item Create a release;
+    \item Show requirements and requests relative to a specific release;
+    \item View single requirement history (every change for each release);
+    \item Obtain an average of the progress time relative to a branch of the requirements tree;
+\end{enumerate}
+
+\addcontentsline{toc}{chapter}{Design}
+\chapter*{Design}
+
+\addcontentsline{toc}{section}{Conceptual design}
+\section*{Conceptual design}
+
 \addcontentsline{toc}{subsection}{Glossary}
 \subsection*{Glossary}
 
-A glossary of terms with description, synonyms and links used in \nameref{subsec:interview} is here explained in
+A glossary of terms with description, synonyms and links used in \nameref{sec:interview} is here explained in
 \autoref{tab:glossary_terms}.
 
 \begin{table}[H]
@@ -196,13 +240,12 @@ A glossary of terms with description, synonyms and links used in \nameref{subsec
     \caption{\label{tab:glossary_terms} Glossary of terms}
 \end{table}
 
-\addcontentsline{toc}{section}{Requirements}
-\section*{Requirements}
+\addcontentsline{toc}{subsection}{Requirements}
+\subsection*{Requirements}
 
-This section aims to restructure requirements according to the \nameref{sec:preliminary} phase.
+This section aims to restructure requirements according to the \nameref{sec:interview} phase.
 
-\addcontentsline{toc}{subsection}{Functional}
-\subsection*{Functional}
+\subsubsection*{Functional}
 
 \begin{itemize}
     \item General
@@ -253,8 +296,7 @@ This section aims to restructure requirements according to the \nameref{sec:prel
     \end{itemize}
 \end{itemize}
 
-\addcontentsline{toc}{subsection}{Non-Functional}
-\subsection*{Non-Functional}
+\subsubsection*{Non-Functional}
 
 \begin{itemize}
     \item Data access has to be really fast;
@@ -262,65 +304,12 @@ This section aims to restructure requirements according to the \nameref{sec:prel
         GUI\footnote{\emph{GUI}, Graphical user interface.};
 \end{itemize}
 
-\addcontentsline{toc}{section}{Actions}
-\section*{Actions}
+\addcontentsline{toc}{subsection}{E-R diagram}
+\subsection*{E-R diagram}
 
-The mainly requested actions are:
-\begin{enumerate}
-    \item Subscribe a new user;
-    \item View a request;
-    \item Create a request;
-    \item Update a request;
-    \item Approve a request;
-    \item View a requirement;
-    \item Create a requirement;
-    \item Update a requirement;
-    \item Disable a requirement;
-    \item Create a release;
-    \item Show requirements and requests relative to a specific release;
-    \item View single requirement history (every change for each release);
-    \item Obtain an average of the progress time relative to a branch of the requirements tree;
-\end{enumerate}
+It was chosen a mixed strategy to build the E-R diagram.
 
-\addcontentsline{toc}{section}{Conceptual design}
-\section*{Conceptual design}
-
-In production I chose to use a mixed strategy to build the E/R diagram.
-
-A first version of the E/R diagram explained in figure \ref{fig:ER_v1}.
-This diagram represents the skeleton of the E/R diagram.
-Here I made the "mistake" of mixing time concepts with static ones.
-In fact Requests and Requirements are single entity sets but their historic of a Version (Release) is not well managed.
-
-\begin{figure}[H]
-\centering
-\caption{Version 1}
-\includegraphics[width=\textwidth]{E-R conceptual v1}
-\label{fig:ER_v1}
-\end{figure}
-
-A second version of the E/R diagram explained in figure \ref{fig:ER_v2}.
-Here a clean schema shows how Requests and Requirements should be traced in their historic versions.
-Furthermore is important to watch that an historic version is always created when a new Release is published, independently from
-Requests or Requirements changes.
-This could lead to an inefficient use of storage...
-
-\begin{figure}[H]
-\centering
-\caption{Version 2}
-\includegraphics[width=\textwidth]{E-R conceptual v2}
-\label{fig:ER_v2}
-\end{figure}
-
-A third version of the E/R diagram explained in figure \ref{fig:ER_v3}.
-Here every attribute is present and shows which data are stored for each entity/relationship.
-
-\begin{figure}[H]
-\centering
-\caption{Version 3}
-\includegraphics[width=\textwidth]{E-R conceptual v3}
-\label{fig:ER_v3}
-\end{figure}
+\includepdf[pages=-, pagecommand={\thispagestyle{fancy}}]{E-R}
 
 \addcontentsline{toc}{section}{Logical design}
 \section*{Logical design}
@@ -802,7 +791,7 @@ The distinction between Guest and Editor users is given to a flag that indicates
 In this case it was chosen to translate them by putting an external identifier in the 1-1 relationship to refer to the other
 entity.
 
-The E/R diagram restructured is explained in figure \ref{fig:ER_logic}.
+The E-R diagram restructured is explained in figure \ref{fig:ER_logic}.
 
 \begin{figure}[H]
 \centering
@@ -842,6 +831,9 @@ isActive, UserIdEditing: \textit{USERS}, timeEditing, timeApproval, ReleaseId: \
 description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing, estimatedHours, takenHours,
 (RequestId, RequestVersion): \textit{HISTORIC\_REQUESTS},
 (ParentRequirementId, ParentRequirementVersion)*: \textit{HISTORIC\_REQUIREMENTS}, ReleaseId: \textit{RELEASES})
+
+\addcontentsline{toc}{chapter}{Deployment}
+\chapter*{Deployment}
 
 \addcontentsline{toc}{section}{MySQL queries}
 \section*{MySQL queries}
@@ -1030,11 +1022,8 @@ query described in \autoref{lst:mysqlquery14}.
     FROM `RequirementTree`;
 \end{lstlisting}
 
-\addcontentsline{toc}{chapter}{Application}
-\chapter*{Application}
-
-\addcontentsline{toc}{section}{General}
-\section*{General}
+\addcontentsline{toc}{section}{Application}
+\section*{Application}
 
 It was chosen a C\# .NET Core 8.0 application running on Windows with Windows Forms GUI.
 As anticipated with the queries the database is MySQL.
