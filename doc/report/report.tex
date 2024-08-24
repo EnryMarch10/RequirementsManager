@@ -202,8 +202,8 @@ The mainly requested actions are:
 \addcontentsline{toc}{chapter}{Design}
 \chapter*{Design}
 
-\addcontentsline{toc}{section}{Conceptual design}
-\section*{Conceptual design}
+\addcontentsline{toc}{section}{Conceptual Design}
+\section*{Conceptual Design}
 
 \addcontentsline{toc}{subsection}{Glossary}
 \subsection*{Glossary}
@@ -311,8 +311,8 @@ It was chosen a mixed strategy to build the E-R diagram.
 
 \includepdf[pages=-, pagecommand={\thispagestyle{fancy}}]{E-R}
 
-\addcontentsline{toc}{section}{Logical design}
-\section*{Logical design}
+\addcontentsline{toc}{section}{Logical Design}
+\section*{Logical Design}
 
 \addcontentsline{toc}{subsection}{Table of volumes}
 \subsection*{Table of volumes}
@@ -752,10 +752,10 @@ Requests and requirements visualization described in \autoref{tab:requirement_pr
     \caption{\label{tab:requirement_progress} Obtain an average of the progress time relative to a branch of the requirements tree}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Redundancy analysis}
-\subsection*{Redundancy analysis}
+\addcontentsline{toc}{subsection}{Redundancy Analysis}
+\subsection*{Redundancy Analysis}
 
-\subsubsection*{10. View a release}
+\subsubsection*{10. View a Release}
 
 Release visualization without redundancy described in \autoref{tab:vw_request_no_redu}.
 
@@ -778,8 +778,8 @@ Release visualization without redundancy described in \autoref{tab:vw_request_no
     \caption{\label{tab:vw_request_no_redu} View a request without redundancy}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Restructured diagram}
-\subsection*{Restructured diagram}
+\addcontentsline{toc}{subsection}{Restructured Diagram}
+\subsection*{Restructured Diagram}
 
 \subsubsection*{Hierarchy elimination}
 
@@ -788,7 +788,7 @@ The distinction between Guest and Editor users is given to a flag that indicates
 
 \subsubsection*{Associations many-to-many}
 
-In this case it was chosen to translate them by putting an external identifier in the 1-1 relationship to refer to the other
+In this case it was chosen to translate them by putting an external identifier in the 1-1 relation to refer to the other
 entity.
 
 The E-R diagram restructured is explained in figure \ref{fig:ER_logic}.
@@ -800,7 +800,7 @@ The E-R diagram restructured is explained in figure \ref{fig:ER_logic}.
 \label{fig:ER_logic}
 \end{figure}
 
-\subsubsection*{Entity and relationships translation in relations}
+\subsubsection*{Entity and Relationships Translation in Relations}
 
 \textbf{USERS}(\underline{UserId}, username, name, surname, email, phone, company*, isEditor)\newline
 \newline
@@ -832,11 +832,78 @@ description, body*, type, isActive, UserIdEditing: \textit{USERS}, timeEditing, 
 (RequestId, RequestVersion): \textit{HISTORIC\_REQUESTS},
 (ParentRequirementId, ParentRequirementVersion)*: \textit{HISTORIC\_REQUIREMENTS}, ReleaseId: \textit{RELEASES})
 
+\subsubsection*{Relations Analysis}
+
+\paragraph{Attributes}
+An attribute of a relation $A$ can be set in an instance with a value that is its domain $dom(A)$.
+Let's consider $T = \{A_1, A_2, ..., A_n\}$ a set of attributes.
+
+\paragraph{Tuples}
+A tuple t on T is a function that maps for each $A_i \in T$ a value in $dom(A_i)$.
+
+\paragraph{Schema of Relation}
+A schema of relation on $T$ is defined by the name of the relation $R$ and a set of attributes $T$,
+an it is denoted by $R(T)$. An extension of it can be denoted by $r$.
+
+\paragraph{Functional Dependency}
+A functional dependency (FD), considering a schema $R(T)$ and $X, Y \subseteq T$ with $X, Y \neq \emptyset$,
+is defined as $X \rightarrow Y$ (X functionally determines Y) if:
+$$
+\forall \ t_1, t_2 \in r : t_1[X] = t_2[Y] \Rightarrow t_1[Y] = t_2[Y]
+$$
+Note that FD is a feature of the $R(T)$ and not its extension $r$.
+
+\paragraph{Trivial Functional Dependency}
+A functional dependency is trivial if $Y \subseteq X$.
+
+\paragraph{Super Key}
+$K \subseteq T$ is a super-key of $R(T) \Leftrightarrow K \rightarrow T$.
+
+\paragraph{Key}
+A key is a super-key without subset of attributes that is another super-key.
+
+\paragraph{Attributes and Keys}
+Attributes can be:
+\begin{enumerate}
+    \item \textit{prime}: is part of at least one key in the schema.
+    \item \textit{non-prime}: it is not part of any key in the schema.
+\end{enumerate}
+
+\paragraph{Normal Forms}
+It was considered the following normal forms:
+\begin{enumerate}
+    \item First Normal Form (1NF):
+    \begin{enumerate}
+        \item A schema $R(T)$ is in 1NF if and only if the domain of each attribute contains only atomic values (simple,
+              indivisible), and the value of each attribute in a tuple is a single value from the domain of that attribute.
+    \end{enumerate}
+    \item Second Normal Form (2NF):
+    \begin{enumerate}
+        \item A schema $R(T)$ with constraints $F$ is in 2NF if and only if every non-prime attribute depends entirely (not
+              partially) on every candidate key of the schema, meaning there is no partial dependency of a non-prime attribute
+              on a key.
+    \end{enumerate}
+    \item Third Normal Form (3NF):
+    \begin{enumerate}
+        \item A schema $R(T)$ with constraints $F$ is in 3NF if and only if every non-prime attribute does not depend transitively
+              on any key, meaning there is no transitive dependency of a non-prime attribute on a key.
+        \item Every relation can reach this level after modifies of splitting or merging.
+    \end{enumerate}
+    \item Boyce-Codd Normal Form (BCNF):
+    \begin{enumerate}
+        \item A schema $R(T)$ with constraints $F$ is in BCNF if and only if, for every non-trivial functional dependency
+              $X \rightarrow Y$ defined on it, $X$ is a super-key of $R(T)$.
+        \item It extends what seen till now to prime attributes.
+        \item Some relationships cannot reach this level even after modifies of splitting or merging.
+    \end{enumerate}
+\end{enumerate}
+All relations considered are in BCNF.
+
 \addcontentsline{toc}{chapter}{Deployment}
 \chapter*{Deployment}
 
-\addcontentsline{toc}{section}{MySQL queries}
-\section*{MySQL queries}
+\addcontentsline{toc}{section}{MySQL Queries}
+\section*{MySQL Queries}
 
 In this section the previously described \hyperref[subsec:ops]{operations} are translated into MySQL queries.
 
