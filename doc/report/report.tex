@@ -131,15 +131,15 @@ the \emph{Software Engineering} process of collecting and creating requirements.
 
 \tableofcontents
 
-\addcontentsline{toc}{chapter}{Analysis}
 \chapter*{Analysis}
+\addcontentsline{toc}{chapter}{Analysis}
 \label{chap:analysis}
 
 It's requested to realize a database that allows a team to optimize Software's Analysis by managing Requirements creation.
 Each one of them descends from a Request that could be created by a team member or by the project customers.
 
-\addcontentsline{toc}{section}{Interview}
 \section*{Interview}
+\addcontentsline{toc}{section}{Interview}
 \label{sec:interview}
 
 The aim is to manage requirements during all phases of software production and revision storing away all final and in production
@@ -154,11 +154,11 @@ conditions has to be respected.
 
 Requirements have to be structured with a title, a type (functional, non functional), a version, a description, a body, one or
 more files, progress data, a creation time and a last modified time. Moreover for a requirement it has to be known
-the user that did the first and last modifies and an history of updates with times and users that did them. Furthermore is
+the user that did the first and last modifications and an history of updates with times and users that did them. Furthermore is
 important to consider that requirements could be arranged in a tree structure in the most complex cases.
 
 Requests structure consists of a title, a type, a version, a description, a body, one or more files, a creation time and a last
-modified time. Besides for a request it has to be known the user that did the first and last modifies and an history of
+modified time. Besides for a request it has to be known the user that did the first and last modifications and an history of
 updates with times and users that did them.
 
 A requirement has to be associated with one and only one request, a request can be associated with multiple requirements.
@@ -179,8 +179,8 @@ creation time.
 % There has to be also the possibility to comment (and reply) requests and requirements so as to work in a more interactive and
 % efficient way.
 
-\addcontentsline{toc}{section}{Actions}
 \section*{Actions}
+\addcontentsline{toc}{section}{Actions}
 
 The mainly requested actions are:
 \begin{enumerate}
@@ -199,14 +199,14 @@ The mainly requested actions are:
     \item Obtain an average of the progress time relative to a branch of the requirements tree;
 \end{enumerate}
 
-\addcontentsline{toc}{chapter}{Design}
 \chapter*{Design}
+\addcontentsline{toc}{chapter}{Design}
 
-\addcontentsline{toc}{section}{Conceptual Design}
 \section*{Conceptual Design}
+\addcontentsline{toc}{section}{Conceptual Design}
 
-\addcontentsline{toc}{subsection}{Glossary}
 \subsection*{Glossary}
+\addcontentsline{toc}{subsection}{Glossary}
 
 A glossary of terms with description, synonyms and links used in \nameref{sec:interview} is here explained in
 \autoref{tab:glossary_terms}.
@@ -240,8 +240,8 @@ A glossary of terms with description, synonyms and links used in \nameref{sec:in
     \caption{\label{tab:glossary_terms} Glossary of terms}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Requirements}
 \subsection*{Requirements}
+\addcontentsline{toc}{subsection}{Requirements}
 
 This section aims to restructure requirements according to the \nameref{sec:interview} phase.
 
@@ -304,18 +304,18 @@ This section aims to restructure requirements according to the \nameref{sec:inte
         GUI\footnote{\emph{GUI}, Graphical user interface.};
 \end{itemize}
 
-\addcontentsline{toc}{subsection}{E-R diagram}
 \subsection*{E-R diagram}
+\addcontentsline{toc}{subsection}{E-R diagram}
 
 It was chosen a mixed strategy to build the E-R diagram.
 
 \includepdf[pages=-, pagecommand={\thispagestyle{fancy}}]{E-R}
 
-\addcontentsline{toc}{section}{Logical Design}
 \section*{Logical Design}
+\addcontentsline{toc}{section}{Logical Design}
 
-\addcontentsline{toc}{subsection}{Table of volumes}
 \subsection*{Table of volumes}
+\addcontentsline{toc}{subsection}{Table of volumes}
 
 Data and expected volumes are described in \autoref{tab:volumes_data}.
 
@@ -381,8 +381,8 @@ Data and expected volumes are described in \autoref{tab:volumes_data}.
     \caption{\label{tab:volumes_data} Volumes of data}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Operations and frequency}
 \subsection*{Operations and frequency}
+\addcontentsline{toc}{subsection}{Operations and frequency}
 
 Operations and frequency are described in \autoref{tab:op_fr}.
 
@@ -428,8 +428,8 @@ Operations and frequency are described in \autoref{tab:op_fr}.
     \caption{\label{tab:op_fr} Operations and frequency}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Navigation and access}
 \subsection*{Navigation and access}
+\addcontentsline{toc}{subsection}{Navigation and access}
 \label{subsec:ops}
 
 \subsubsection*{1. Subscribe a new user}
@@ -752,8 +752,8 @@ Requests and requirements visualization described in \autoref{tab:requirement_pr
     \caption{\label{tab:requirement_progress} Obtain an average of the progress time relative to a branch of the requirements tree}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Redundancy Analysis}
 \subsection*{Redundancy Analysis}
+\addcontentsline{toc}{subsection}{Redundancy Analysis}
 
 \subsubsection*{10. View a Release}
 
@@ -778,8 +778,8 @@ Release visualization without redundancy described in \autoref{tab:vw_request_no
     \caption{\label{tab:vw_request_no_redu} View a request without redundancy}
 \end{table}
 
-\addcontentsline{toc}{subsection}{Restructured Diagram}
 \subsection*{Restructured Diagram}
+\addcontentsline{toc}{subsection}{Restructured Diagram}
 
 \subsubsection*{Hierarchy elimination}
 
@@ -849,7 +849,7 @@ an it is denoted by $R(T)$. An extension of it can be denoted by $r$.
 A functional dependency (FD), considering a schema $R(T)$ and $X, Y \subseteq T$ with $X, Y \neq \emptyset$,
 is defined as $X \rightarrow Y$ (X functionally determines Y) if:
 $$
-\forall \ t_1, t_2 \in r : t_1[X] = t_2[Y] \Rightarrow t_1[Y] = t_2[Y]
+\forall \ t_1, t_2 \in r : t_1[X] = t_2[X] \Rightarrow t_1[Y] = t_2[Y]
 $$
 Note that FD is a feature of the $R(T)$ and not its extension $r$.
 
@@ -887,23 +887,23 @@ It was considered the following normal forms:
     \begin{enumerate}
         \item A schema $R(T)$ with constraints $F$ is in 3NF if and only if every non-prime attribute does not depend transitively
               on any key, meaning there is no transitive dependency of a non-prime attribute on a key.
-        \item Every relation can reach this level after modifies of splitting or merging.
+        \item Every relation can reach this level after modifications of splitting and/or merging.
     \end{enumerate}
     \item Boyce-Codd Normal Form (BCNF):
     \begin{enumerate}
         \item A schema $R(T)$ with constraints $F$ is in BCNF if and only if, for every non-trivial functional dependency
               $X \rightarrow Y$ defined on it, $X$ is a super-key of $R(T)$.
         \item It extends what seen till now to prime attributes.
-        \item Some relationships cannot reach this level even after modifies of splitting or merging.
+        \item Some relationships cannot reach this level even after modifications of splitting and/or merging.
     \end{enumerate}
 \end{enumerate}
 All relations considered are in BCNF.
 
-\addcontentsline{toc}{chapter}{Deployment}
 \chapter*{Deployment}
+\addcontentsline{toc}{chapter}{Deployment}
 
-\addcontentsline{toc}{section}{MySQL Queries}
 \section*{MySQL Queries}
+\addcontentsline{toc}{section}{MySQL Queries}
 
 In this section the previously described \hyperref[subsec:ops]{operations} are translated into MySQL queries.
 
@@ -1089,8 +1089,8 @@ query described in \autoref{lst:mysqlquery14}.
     FROM `RequirementTree`;
 \end{lstlisting}
 
-\addcontentsline{toc}{section}{Application}
 \section*{Application}
+\addcontentsline{toc}{section}{Application}
 
 It was chosen a C\# .NET Core 8.0 application running on Windows with Windows Forms GUI.
 As anticipated with the queries the database is MySQL.
