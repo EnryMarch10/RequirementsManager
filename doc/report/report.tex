@@ -1033,36 +1033,37 @@ In this section the previously described \hyperref[subsec:ops]{operations} are t
 \begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op12]{op. 12}}{op. 12}}, label={lst:mysqlquery12}]
     SELECT
         h_requests.*,
-        h_requirements.*
+        h_r.*
     FROM
         `RELEASES` releases,
         `HISTORIC_REQUESTS` h_requests,
-        `HISTORIC_REQUIREMENTS` h_requirements
+        `HISTORIC_REQUIREMENTS` h_r
     WHERE
         releases.`ReleaseId` = h_requests.`ReleaseId` AND
-        releases.`ReleaseId` = h_requirements.`ReleaseId`;
+        releases.`ReleaseId` = h_r.`ReleaseId`;
     -- is equivalent to
     SELECT
         h_requests.*,
-        h_requirements.*
+        h_r.*
     FROM
         `RELEASES` releases,
     INNER JOIN `HISTORIC_REQUESTS` h_requests
         ON requests.`ReleaseId` = releases.`ReleaseId`
-    INNER JOIN `HISTORIC_REQUIREMENTS` h_requirements
-        ON h_requirements.`ReleaseId` = h_requirements.`ReleaseId`;
+    INNER JOIN `HISTORIC_REQUIREMENTS` h_r
+        ON h_r.`ReleaseId` = h_r.`ReleaseId`;
 \end{lstlisting}
 
 \hyperref[subsubsec:op13]{View single requirement history} operation query described in \autoref{lst:mysqlquery13}.
 
 \begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op13]{op. 13}}{op. 13}}, label={lst:mysqlquery13}]
     SELECT
-        h_requirements.*
+        h_r.*
     FROM
-        `REQUIREMENTS` requirements,
-        `HISTORIC_REQUIREMENTS` h_requirements
+        `REQUIREMENTS` r,
+        `HISTORIC_REQUIREMENTS` h_r
     WHERE
-        requirements.`RequirementId` = h_requirements.`RequirementId`
+        r.`RequirementId` = h_r.`RequirementId` AND
+        r.`RequirementId` = ?;
 \end{lstlisting}
 
 \hyperref[subsubsec:op14]{Obtain an average of the progress time relative to a branch of the requirements tree} operation
@@ -1071,10 +1072,10 @@ query described in \autoref{lst:mysqlquery14}.
 \begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op14]{op. 14}}{op. 14}}, label={lst:mysqlquery14}]
     -- Common Table Expressions are supported from MySQL 8
     WITH RECURSIVE `RequirementTree` AS (
-        -- Anchor member: Select the starting node (i.e. the root of the branch)
+        -- Anchor member: Select the starting node (the root of the branch)
         SELECT *
         FROM `REQUIREMENTS`
-        WHERE `RequirementId` = ? -- Replace ? with the ID of the root requirement
+        WHERE `RequirementId` = ? -- Replace with the ID of the root
         UNION ALL
         -- Recursive member: Select all children of the current level
         SELECT r.*

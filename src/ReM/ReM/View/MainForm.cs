@@ -25,5 +25,17 @@ public partial class MainForm : Form
         {
             Dock = DockStyle.Fill
         });
+        tabPageHistoricRequests.Controls.Add(new HistoricRequestsControl()
+        {
+            Dock = DockStyle.Fill
+        });
+        tabPageHistoricRequirements.Controls.Add(new HistoricRequirementsControl()
+        {
+            Dock = DockStyle.Fill
+        });
+        tabPageOperations.Controls.Add(new OperationsControl()
+        {
+            Dock = DockStyle.Fill
+        });
     }
 }

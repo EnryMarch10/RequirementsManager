@@ -65,7 +65,6 @@ public partial class EntityCRUDManager<T> where T : notnull, new()
             {
                 if (DataGridViewChangeValueHandler(_dataGridView, item, row, column))
                 {
-                    Debug.WriteLine($"Request is: {item}");
                     if (!NewItems.Contains(item))
                     {
                         UpdatedItems.Add(item);
@@ -78,7 +77,6 @@ public partial class EntityCRUDManager<T> where T : notnull, new()
                 DataGridViewChangeValueHandler(_dataGridView, newItem, row, column);
                 NewItems.Add(newItem);
                 _dataGridView.Rows[row].Tag = newItem;
-                Debug.WriteLine($"New request is: {newItem}");
             }
         }
     }
@@ -171,7 +169,6 @@ public partial class EntityCRUDManager<T> where T : notnull, new()
                 }
             }
             var nUpdates = context.SaveChanges();
-            Debug.WriteLine($"Saved {nUpdates} changes");
             foreach (var item in NewItems)
             {
                 Items.Remove(item);
@@ -214,7 +211,6 @@ public partial class EntityCRUDManager<T> where T : notnull, new()
     {
         var result = false;
         var selectedRows = _dataGridView.SelectedRows;
-        Debug.WriteLine($"Selected rows count = {selectedRows.Count}");
         if (selectedRows.Count == 1 && selectedRows[0].Tag is T item)
         {
             try

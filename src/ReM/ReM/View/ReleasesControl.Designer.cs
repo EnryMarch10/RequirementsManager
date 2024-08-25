@@ -31,7 +31,6 @@ partial class ReleasesControl
         buttonRefresh = new Button();
         buttonUpdate = new Button();
         dataGridViewReleases = new DataGridView();
-        buttonDelete = new Button();
         ColumnReleaseId = new DataGridViewTextBoxColumn();
         ColumnName = new DataGridViewTextBoxColumn();
         ColumnDescription = new DataGridViewTextBoxColumn();
@@ -39,6 +38,7 @@ partial class ReleasesControl
         ColumnNumRequests = new DataGridViewTextBoxColumn();
         ColumnNumRequirements = new DataGridViewTextBoxColumn();
         ColumnUserIdCreation = new DataGridViewTextBoxColumn();
+        buttonDelete = new Button();
         ((System.ComponentModel.ISupportInitialize)dataGridViewReleases).BeginInit();
         SuspendLayout();
         // 
@@ -80,17 +80,6 @@ partial class ReleasesControl
         dataGridViewReleases.Size = new Size(900, 468);
         dataGridViewReleases.TabIndex = 3;
         dataGridViewReleases.CellValueChanged += DataGridViewUsers_CellValueChanged;
-        // 
-        // buttonDelete
-        // 
-        buttonDelete.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-        buttonDelete.Location = new Point(741, 474);
-        buttonDelete.Name = "buttonDelete";
-        buttonDelete.Size = new Size(75, 23);
-        buttonDelete.TabIndex = 6;
-        buttonDelete.Text = "Delete";
-        buttonDelete.UseVisualStyleBackColor = true;
-        buttonDelete.Click += ButtonDelete_Click;
         // 
         // ColumnReleaseId
         // 
@@ -143,6 +132,17 @@ partial class ReleasesControl
         ColumnUserIdCreation.HeaderText = "UserIdCreation";
         ColumnUserIdCreation.Name = "ColumnUserIdCreation";
         ColumnUserIdCreation.Width = 110;
+        // 
+        // buttonDelete
+        // 
+        buttonDelete.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        buttonDelete.Location = new Point(741, 474);
+        buttonDelete.Name = "buttonDelete";
+        buttonDelete.Size = new Size(75, 23);
+        buttonDelete.TabIndex = 6;
+        buttonDelete.Text = "Delete";
+        buttonDelete.UseVisualStyleBackColor = true;
+        buttonDelete.Click += ButtonDelete_Click;
         // 
         // ReleasesControl
         // 
