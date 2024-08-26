@@ -22,6 +22,9 @@
 
 \usepackage{pdfpages}
 
+% For overlaying text
+\usepackage{tikz}
+
 % Normal table
 \colorlet{dark_title_rows}{gray!90}
 \colorlet{light_odd_rows}{gray!15}
@@ -304,12 +307,23 @@ This section aims to restructure requirements according to the \nameref{sec:inte
         GUI\footnote{\emph{GUI}, Graphical user interface.};
 \end{itemize}
 
-\subsection*{E-R diagram}
-\addcontentsline{toc}{subsection}{E-R diagram}
-
-It was chosen a mixed strategy to build the E-R diagram.
-
-\includepdf[pages=-, pagecommand={\thispagestyle{fancy}}]{E-R}
+\newcounter{pdfpage}
+\setcounter{pdfpage}{0}
+\includepdf[pages=-, pagecommand={
+    \thispagestyle{fancy}
+    \stepcounter{pdfpage}
+    \ifnum\value{pdfpage}=1
+        \begin{tikzpicture}[overlay]
+            \node[anchor=north west] at (current page.south west) {
+                \begin{minipage}[t]{\textwidth}
+                    \subsection*{E-R diagram}
+                    \addcontentsline{toc}{subsection}{E-R diagram}
+                    It was chosen a mixed strategy to build the E-R diagram.
+                \end{minipage}
+            };
+        \end{tikzpicture}
+    \fi
+}]{E-R}
 
 \section*{Logical Design}
 \addcontentsline{toc}{section}{Logical Design}
