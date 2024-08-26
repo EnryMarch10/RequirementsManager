@@ -1033,24 +1033,24 @@ In this section the previously described \hyperref[subsec:ops]{operations} are t
 \begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op12]{op. 12}}{op. 12}}, label={lst:mysqlquery12}]
     SELECT
         h_requests.*,
-        h_r.*
+        h_requirements.*
     FROM
         `RELEASES` releases,
         `HISTORIC_REQUESTS` h_requests,
-        `HISTORIC_REQUIREMENTS` h_r
+        `HISTORIC_REQUIREMENTS` h_requirements
     WHERE
         releases.`ReleaseId` = h_requests.`ReleaseId` AND
-        releases.`ReleaseId` = h_r.`ReleaseId`;
+        releases.`ReleaseId` = h_requirements.`ReleaseId`;
     -- is equivalent to
     SELECT
         h_requests.*,
-        h_r.*
+        h_requirements.*
     FROM
-        `RELEASES` releases,
-    INNER JOIN `HISTORIC_REQUESTS` h_requests
-        ON requests.`ReleaseId` = releases.`ReleaseId`
-    INNER JOIN `HISTORIC_REQUIREMENTS` h_r
-        ON h_r.`ReleaseId` = h_r.`ReleaseId`;
+        `RELEASES` releases
+        INNER JOIN `HISTORIC_REQUESTS` h_requests
+            ON releases.`ReleaseId` = h_requests.`ReleaseId`
+        INNER JOIN `HISTORIC_REQUIREMENTS` h_requirements
+            ON releases.`ReleaseId` = h_requirements.`ReleaseId`;
 \end{lstlisting}
 
 \hyperref[subsubsec:op13]{View single requirement history} operation query described in \autoref{lst:mysqlquery13}.
@@ -1071,7 +1071,8 @@ query described in \autoref{lst:mysqlquery14}.
 
 \begin{lstlisting}[language=MySQL, caption={\texorpdfstring{\hyperref[subsubsec:op14]{op. 14}}{op. 14}}, label={lst:mysqlquery14}]
     -- Common Table Expressions are supported from MySQL 8
-    WITH RECURSIVE `RequirementTree` AS (
+    WITH RECURSIVE `RequirementTree`
+    AS (
         -- Anchor member: Select the starting node (the root of the branch)
         SELECT *
         FROM `REQUIREMENTS`
@@ -1081,7 +1082,7 @@ query described in \autoref{lst:mysqlquery14}.
         SELECT r.*
         FROM `REQUIREMENTS` r
         INNER JOIN `RequirementTree` rt ON r.`ParentRequirementId` = rt.`RequirementId`
-    )
+       )
     -- Final selection: Sum up the values from the CTE
     SELECT
         SUM(`progressPercentage`) AS `totalProgressPercentage`,
